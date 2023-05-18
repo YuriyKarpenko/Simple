@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Company>YK</Company>
+        <Authors>mail@yk.cc.ua</Authors>
+        <LangVersion>latest</LangVersion>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <Nullable>enable</Nullable>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Version>0.1.1</Version>
+
+        <PackageTags>TTL;Cache</PackageTags>
+        <Title>Simple wrapers of vallue with TTL</Title>
+        <Description>
+            Simple wrapers of vallue with TTL as:
+            public T GetOrCreate(Func&lt;T&gt; factory)
+                =&gt; IsNeedToCreate
+                ? value = EnsureValue(factory)
+                : value!;
+        </Description>
+        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\LICENSE.txt" Pack="True" PackagePath="\" />
+        <None Include="..\README.md" Pack="True" PackagePath="\" />
+    </ItemGroup>
+
+</Project>
