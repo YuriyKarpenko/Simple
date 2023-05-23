@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 using Simple.Logging.Configuration;
 using Simple.Logging.Messages;
@@ -9,7 +10,10 @@ namespace Simple.Logging.Observers
     [LoggerName("Debug")]
     public class ObserverDebug : ObserverBase<ObserverDebug>
     {
-        public ObserverDebug(ILogOptions options) : base(options) { }
+        public ObserverDebug(ILogOptions options, Action<LoggerFilterItem>? configure = null) : base(options)
+        {
+            configure?.Invoke(FilterItem);
+        }
 
 
         protected override void Write(ILogMessage message)
