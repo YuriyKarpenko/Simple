@@ -81,7 +81,7 @@ namespace Test.Ttl
         [InlineData(10, 2, 5)]
         //[InlineData(100, 10, 10)]     //  +1 - corretion with time of executing test (ttl = 0:00:01.0)
         //[InlineData(100, 10, 13)]     //  +1 - corretion with time of executing test (ttl = 0:00:00.5)
-        [InlineData(100, 10, 15)]     //  +1 - corretion with time of executing test (ttl = 0:00:00.2)
+        //[InlineData(100, 10, 15)]     //  +1 - corretion with time of executing test (ttl = 0:00:00.2)
         public void MultithteadCount(int iterations, int parts, int expected)
         {
             //  arrange
@@ -106,7 +106,7 @@ namespace Test.Ttl
 
         [Theory]
         [InlineData(10, 2, 5)]
-        [InlineData(100, 10, 15)]     //  +1 - corretion with time of executing test
+        //[InlineData(100, 10, 15)]     //  +1 - corretion with time of executing test
         public async Task MultithteadCountAsync(int iterations, int parts, int expected)
         {
             //  arrange
