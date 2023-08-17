@@ -3,42 +3,43 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Simple.Logging.Messages;
-using Simple.Logging.Observers;
 
 namespace Simple.Logging.Configuration
 {
+    /// <summary> Filters of all observers </summary>
     public class LoggerFilterOptions
     {
-        public static LoggerFilterOptions Instance = new LoggerFilterOptions();
-
-        private LoggerFilterOptions()
+        /// <summary> [ObserverName, ObserverFilter] Observers filters </summary>
+        private readonly IDictionary<string, LoggerFilterItem> _obseversFilterItems;
+        public LoggerFilterOptions()
         {
-            Rules = new Dictionary<string, LoggerFilterItem>(StringComparer.OrdinalIgnoreCase);
+            _obseversFilterItems = new Dictionary<string, LoggerFilterItem>(StringComparer.OrdinalIgnoreCase);
             Default = new LoggerFilterItem(null);
         }
 
         public LoggerFilterItem Default { get; set; }
 
-        /// <summary> [ObserverName, ObserverFilter] Observers filters </summary>
-        public IDictionary<string, LoggerFilterItem> Rules { get; }
-
-
-        public bool FilterIn(ILogMessage message)
+        public bool FilterIn(LogLevel level, string logSource)
         {
-            var fullName = message.LogSource;
-            var matches = Rules.Values
-                .SelectMany(i => i.GetRules(fullName))
-                .Union(Default.GetRules(fullName))
-                .ToArray();
-            var level = Default.FilterMatces(matches);
-            return message.Level >= level;
+            return Default.Filter(level, logSource) ||
+                _obseversFilterItems.Values.Any(filter => filter.Filter(level, logSource));
         }
 
-        public bool FilterOut(ILogMessage message, ILogObserver observer)
+        public LoggerFilterItem EnsureFilterItem(string observerName)
         {
-            return Rules.TryGetValue(observer.Name, out var rules)
-                ? rules.Filter(message)
-                : Default.Filter(message);
+            if (!_obseversFilterItems.TryGetValue(observerName, out var filterItem))
+            {
+                _obseversFilterItems[observerName] = filterItem = new LoggerFilterItem(null);
+                filterItem.MinLevel = Default.MinLevel;
+            }
+            return filterItem;
+        }
+
+        public void SetFilterItem(string observerName, LoggerFilterItem filterItem)
+        {
+            Throw.IsArgumentNullException(observerName, nameof(observerName));
+            Throw.IsArgumentNullException(filterItem, nameof(filterItem));
+            _obseversFilterItems[observerName] = filterItem;
         }
     }
 }

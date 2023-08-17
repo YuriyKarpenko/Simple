@@ -9,11 +9,12 @@ namespace Simple.Logging.Configuration
 
         private LogOptions()
         {
+            FilterOptions = new LoggerFilterOptions();
             ObserversOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary> [ObserverName, Json] (observers RAW options) </summary>
-        public LoggerFilterOptions FilterOptions => LoggerFilterOptions.Instance;
+        public LoggerFilterOptions FilterOptions { get; }
 
         /// <summary> Filters of all observers </summary>
         public IDictionary<string, string> ObserversOptions { get; }

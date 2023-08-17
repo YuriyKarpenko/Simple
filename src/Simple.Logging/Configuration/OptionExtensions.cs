@@ -19,13 +19,13 @@ namespace Simple.Logging
 
         public static ILogOptions AddConsole(this ILogOptions o)
         {
-            LoggingBus.Instance.Subscribe(new ObserverConsole());
+            LoggingBus.Instance.Subscribe(new ObserverConsole(o));
             return o;
         }
 
         public static ILogOptions AddDebug(this ILogOptions o)
         {
-            LoggingBus.Instance.Subscribe(new ObserverDebug());
+            LoggingBus.Instance.Subscribe(new ObserverDebug(o));
             return o;
         }
     }
