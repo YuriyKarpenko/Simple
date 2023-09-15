@@ -1,37 +1,41 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace Simple.Ttl
 {
-    public class TtlDictionary<T>
+    public class TtlDictionary<TKey>
     {
-        private readonly Dictionary<string, TtlValue<T>> _cache = new Dictionary<string, TtlValue<T>>(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<TKey, TtlBase> _cache = new ConcurrentDictionary<TKey, TtlBase>();
         private readonly TimeSpan _ttl;
         public TtlDictionary(TimeSpan ttl)
         {
             _ttl = ttl;
         }
 
-        public T GetOrCreate(string key, Func<T> factory)
-            => EnsureValue(key).GetOrCreate(factory);
 
-        public T Set(string key, T value)
-            => EnsureValue(key).Set(value);
+        public TimeSpan Ttl => _ttl;
 
-        public bool TryGetValue(string key, out T? value)
+        public T GetOrCreate<T>(TKey key, Func<TKey, T> factory)
+            => EnsureTtlValue<T>(key).GetOrCreate(() => factory(key));
+
+        public Task<T> GetOrCreateAsync<T>(TKey key, Func<TKey, Task<T>> factory)
+            => EnsureTtlValue<T>(key).GetOrCreateAsync(() => factory(key));
+
+        public T Set<T>(TKey key, T value)
+            => EnsureTtlValue<T>(key).Set(value);
+
+        public bool HasKey(TKey key)
+            => _cache.ContainsKey(key);
+
+        public bool TryGetValue<T>(TKey key, out T? value)
         {
             value = default;
-            return _cache.TryGetValue(key, out var ttlValue) && ttlValue.TryGetValue(out value);
+            return _cache.TryGetValue(key, out var ttl) && ttl is TtlValue<T> t && t!.TryGetValue(out value);
         }
 
 
-        private TtlValue<T> EnsureValue(string key)
-        {
-            if (!_cache.TryGetValue(key, out var ttlValue))
-            {
-                _cache[key] = ttlValue = new TtlValue<T>(_ttl);
-            }
-            return ttlValue;
-        }
+        protected virtual TtlValue<T> EnsureTtlValue<T>(TKey key)
+            => (TtlValue<T>)_cache.GetOrAdd(key, (TKey k) => new TtlValue<T>(_ttl));
     }
 }
