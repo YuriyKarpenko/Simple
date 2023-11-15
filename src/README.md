@@ -91,4 +91,6 @@ OR
 public Task<IConfigApp> GetAppConfigAsync()
 	=> _configApp.GetOrCreateAsync(() => Get...Async(...));
 ```
-
+##  Release notes
+0.1.3.3		- fixed asynchronous method TtlValue.GetOrCreateAsync
+0.1.2.2		- update class TtlDictionary and TtlValues

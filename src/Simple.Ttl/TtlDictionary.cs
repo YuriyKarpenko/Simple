@@ -19,7 +19,7 @@ namespace Simple.Ttl
         public T GetOrCreate<T>(TKey key, Func<TKey, T> factory)
             => EnsureTtlValue<T>(key).GetOrCreate(() => factory(key));
 
-        public Task<T> GetOrCreateAsync<T>(TKey key, Func<TKey, Task<T>> factory)
+        public Task<T?> GetOrCreateAsync<T>(TKey key, Func<TKey, Task<T>> factory)
             => EnsureTtlValue<T>(key).GetOrCreateAsync(() => factory(key));
 
         public T Set<T>(TKey key, T value)

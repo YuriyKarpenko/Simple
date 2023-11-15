@@ -12,7 +12,7 @@ namespace Simple.Ttl
         public T GetOrCreate<T>(Func<T> factory)
             => EnsureTtlValue<T>(typeof(T)).GetOrCreate(factory);
 
-        public Task<T> GetOrCreateAsync<T>(Func<Task<T>> factory)
+        public Task<T?> GetOrCreateAsync<T>(Func<Task<T>> factory)
             => EnsureTtlValue<T>(typeof(T)).GetOrCreateAsync(factory);
     }
 }
