@@ -54,6 +54,8 @@ and using like a Splat.Locator, but has litle different names
 	}
 ```
 
+##  Release notes
+0.1.1.1		- Small improvements to the hierarchy of classes
 
 # Simple.Configuration
 

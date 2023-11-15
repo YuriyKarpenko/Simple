@@ -21,5 +21,8 @@ namespace Simple.DI
 
         /// <summary> Creating a type-resolver </summary>
         IServiceProvider BuildServiceProvider();
+
+        /// <inheritdoc />
+        new IProviderSetup CreateScope();
     }
 }

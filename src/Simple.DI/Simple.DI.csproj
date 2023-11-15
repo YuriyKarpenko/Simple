@@ -1,22 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Company>YK</Company>
-        <Authors>mail@yk.cc.ua</Authors>
         <LangVersion>latest</LangVersion>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Nullable>enable</Nullable>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>0.1.0</Version>
+        <Version>0.1.1.1</Version>
 
-        <PackageTags>DI;Dependency Injection</PackageTags>
-        <Title>Simple Dependency Injection</Title>
+        <!--    package     -->
         <Description>
             Very light DI, but using only factory (Source of inspiration: https://github.com/reactiveui/splat)
         </Description>
+        <PackageTags>Simple;DI;Dependency Injection</PackageTags>
+        <Title>Simple Dependency Injection</Title>
+
+        <!--    all packages    -->
+        <Authors>mail@yk.cc.ua</Authors>
+        <Company>YK</Company>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>

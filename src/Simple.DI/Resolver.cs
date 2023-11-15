@@ -53,4 +53,24 @@ namespace Simple.DI
 
         #endregion
     }
+
+    public class Resolver : Resolver<Type>, IProviderSetup, IServiceProvider
+    {
+        public Resolver(Resolver<Type> registry = null) : base(registry)
+        {
+        }
+
+        #region IProviderSetup
+
+        public new IProviderSetup CreateScope()
+            => new Resolver(this);
+
+        public IProviderSetup Register(Type key, Func<IServiceProvider, object?> factory)
+            => (IProviderSetup)base.Register(key, () => factory(this));
+
+        public IServiceProvider BuildServiceProvider()
+            => this;
+
+        #endregion
+    }
 }
