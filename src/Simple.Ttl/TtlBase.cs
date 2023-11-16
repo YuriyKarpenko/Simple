@@ -4,6 +4,7 @@ namespace Simple.Ttl
 {
     public abstract class TtlBase
     {
+        protected readonly object _lock = new object();
         private readonly TimeSpan _ttl;
         private DateTime? expired = null;
 
@@ -21,7 +22,7 @@ namespace Simple.Ttl
         /// <returns><paramref name="factory"/> result value</returns>
         protected T EnsureValue<T>(Func<T> factory)
         {
-            lock (this)
+            lock (_lock)
             {
                 expired = DateTime.UtcNow + _ttl;
                 return factory();
