@@ -55,7 +55,7 @@ namespace Simple.Hosting
                 .Build();
 
             var hostingEnv = new HostingEnvironment(
-                envName: _config.Get<string>(EnvKey.Environment) ?? "Release",
+                envName: _config.GetOrDefault<string>(EnvKey.Environment) ?? "Release",
                 appName: Assembly.GetEntryAssembly().GetName().Name, //?? _config.Get<string>(EnvKey.ApplicationName),
                 rootPath: ResolveContentRootPath(_config, AppContext.BaseDirectory));
 

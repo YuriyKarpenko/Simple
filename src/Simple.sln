@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simple.Configuration", "Sim
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simple.Hosting", "Simple.Hosting\Simple.Hosting.csproj", "{E1CCBFE5-380A-425E-97C4-5239FB3911D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simple", "Simple\Simple.csproj", "{895A6657-FB0C-48FF-B085-6D313A1DBFCE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simple.Helpers", "Simple.Helpers\Simple.Helpers.csproj", "{895A6657-FB0C-48FF-B085-6D313A1DBFCE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simple.Ttl", "Simple.Ttl\Simple.Ttl.csproj", "{130D1FD3-F00C-4325-B43B-4D98CAE69C59}"
 EndProject

@@ -1,31 +1,5 @@
-# Simple
-
-## Throw
-
-Pierian spring:
-https://reubenbond.github.io/posts/dotnet-perf-tuning
-or translation
-https://www.lshnk.me/2019/01/26/улучшаем-производительность-в-.net-core-по-опыту-бинарного-сериализатора-hagar/
-
-### Using
-
-```cs
-using Simple;
-...
-	Throw.Exception(new ...Exception(parameters...));
-...
-	//	allows optional additional check
-	Throw.IsArgumentNullException(file, nameof(file), i => !string.IsNullOrEmpty(i));
-```
-
-## HashCoceCombiner 
-class (from MS v2.2)
-
-## Extensions
-
-some extensions for Stream and collectopns
-
-
+Projects:
+###################################################################################################
 # Simple.DI
 
 Pierian spring:
@@ -57,6 +31,7 @@ and using like a Splat.Locator, but has litle different names
 ##  Release notes
 0.1.1.1		- Small improvements to the hierarchy of classes
 
+###################################################################################################
 # Simple.Configuration
 
 Easy way to use JSON and Envirement parameters, which used like a MS in "Hosting" flow
@@ -76,6 +51,36 @@ Easy way to use JSON and Envirement parameters, which used like a MS in "Hosting
 	var myConfig = configuration.Json.GetValue("some section").ToObject<MyConfig>();
 ```
 
+###################################################################################################
+# Simple.Helpers
+
+## Throw
+
+Pierian spring:
+https://reubenbond.github.io/posts/dotnet-perf-tuning
+or translation
+https://www.lshnk.me/2019/01/26/улучшаем-производительность-в-.net-core-по-опыту-бинарного-сериализатора-hagar/
+
+### Using
+
+```cs
+using Simple;
+...
+	Throw.Exception(new ...Exception(parameters...));
+...
+	//	allows optional additional check
+	fileName = Throw.IsArgumentNullException(fileName, nameof(fileName), i => !string.IsNullOrEmpty(i));
+```
+
+## HashCoceCombiner 
+class (from MS v2.2)
+
+## Extensions
+
+some extensions for Stream and collectopns
+##  Release notes
+
+###################################################################################################
 # Simple.Ttl
 
 ##	Using
@@ -96,3 +101,5 @@ public Task<IConfigApp> GetAppConfigAsync()
 ##  Release notes
 0.1.3.3		- fixed asynchronous method TtlValue.GetOrCreateAsync
 0.1.2.2		- update class TtlDictionary and TtlValues
+
+###################################################################################################

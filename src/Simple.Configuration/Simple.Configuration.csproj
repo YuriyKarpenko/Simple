@@ -1,20 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Company>YK</Company>
-        <Authors>mail@yk.cc.ua</Authors>
         <LangVersion>latest</LangVersion>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Nullable>enable</Nullable>
+        <TargetFramework>netstandard2.0</TargetFramework>
+
+        <!--    package     -->
+        <Description>Simple configure project from JSON and environment, which used like a MS</Description>
+        <PackageTags>Simple;configuration;json configuration</PackageTags>
+        <Title>Simple configure project</Title>
+        <Version>0.1.0.0</Version>
+        
+        <!--    all packages    -->
+        <Authors>mail@yk.cc.ua</Authors>
+        <Company>YK</Company>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>0.1.0</Version>
-
-        <PackageTags>configuration;json configuration</PackageTags>
-        <Title>Simple configure project</Title>
-        <Description>Simple configure project from JSON and environment, which used like a MS</Description>
-        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,12 +25,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Simple\Simple.csproj" />
+        <ProjectReference Include="..\Simple.Helpers\Simple.Helpers.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <None Include="..\..\LICENSE.txt" Pack="True" PackagePath="\" />
-        <None Include="..\README.md" Pack="True" PackagePath="\" />
+        <None Include="..\..\README.md" Pack="True" PackagePath="\" />
     </ItemGroup>
 
 </Project>
