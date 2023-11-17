@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Simple
+namespace Simple.Helpers
 {
     /// <summary>
     /// Extensions for <see cref="MemoryStream"/>
