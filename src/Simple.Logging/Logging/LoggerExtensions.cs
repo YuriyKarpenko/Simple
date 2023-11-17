@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Simple.Helpers;
+
 namespace Simple.Logging
 {
     public static class LoggerExtensions

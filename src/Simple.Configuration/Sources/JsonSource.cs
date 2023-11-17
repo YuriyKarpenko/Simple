@@ -3,6 +3,8 @@ using System.IO;
 
 using Newtonsoft.Json.Linq;
 
+using Simple.Helpers;
+
 namespace Simple.Configuration.Sources
 {
     /// <summary> Represents a JSON file as an <see cref="IConfigurationSource"/>. </summary>

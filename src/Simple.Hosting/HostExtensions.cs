@@ -1,5 +1,6 @@
 ﻿using System;
 
+using Simple.Helpers;
 using Simple.Logging;
 using Simple.Logging.Configuration;
 

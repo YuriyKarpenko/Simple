@@ -4,6 +4,7 @@ using System.Reflection;
 
 using Simple.Configuration;
 using Simple.DI;
+using Simple.Helpers;
 using Simple.Logging;
 
 namespace Simple.Hosting

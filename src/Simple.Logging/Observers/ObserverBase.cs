@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
+using Simple.Helpers;
 using Simple.Logging.Messages;
 
 namespace Simple.Logging.Observers
