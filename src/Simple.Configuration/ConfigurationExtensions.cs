@@ -4,6 +4,7 @@ using System.IO;
 using Newtonsoft.Json;
 
 using Simple.Configuration.Sources;
+using Simple.Helpers;
 
 namespace Simple.Configuration
 {

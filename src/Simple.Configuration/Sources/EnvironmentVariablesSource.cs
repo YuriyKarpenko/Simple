@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Linq;
 
+using Simple.Helpers;
+
 namespace Simple.Configuration.Sources
 {
     internal class EnvironmentVariablesSource : IConfigurationSource

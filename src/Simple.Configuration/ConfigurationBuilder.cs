@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Simple.Configuration.Sources;
+using Simple.Helpers;
 
 namespace Simple.Configuration
 {
