@@ -4,7 +4,6 @@
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>0.1.1.1</Version>
 
         <!--    package     -->
         <Description>
@@ -12,6 +11,7 @@
         </Description>
         <PackageTags>Simple;DI;Dependency Injection</PackageTags>
         <Title>Simple Dependency Injection</Title>
+        <Version>0.1.1.1</Version>
 
         <!--    all packages    -->
         <Authors>mail@yk.cc.ua</Authors>
@@ -24,7 +24,7 @@
 
     <ItemGroup>
         <None Include="..\..\LICENSE.txt" Pack="True" PackagePath="\" />
-        <None Include="..\README.md" Pack="True" PackagePath="\" />
+        <None Include="..\..\README.md" Pack="True" PackagePath="\" />
     </ItemGroup>
 
 </Project>

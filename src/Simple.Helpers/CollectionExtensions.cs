@@ -10,10 +10,11 @@ namespace Simple
     /// </summary>
     public static class CollectionExtensions
     {
-        public static T? Get<T>(this IDictionary<string, object> c, string key)
-        {
-            return c.TryGetValue(key, out var value) && value is T t ? t : default;
-        }
+        /// <summary>
+        /// Returns value if <paramref name="key"/> exists and value is <typeparamref name="T"/> or <code default/>
+        /// </summary>
+        public static T? GetOrDefault<T>(this IDictionary<string, object> source, string key)
+            => source.TryGetValue(key, out var value) && value is T t ? t : default;
 
         public static string AsString<T>(this IEnumerable<T> souce, string separator = ", ")
             => string.Join(separator, souce);
@@ -76,6 +77,15 @@ namespace Simple
             }
         }
 
+        /// <summary>
+        /// Fill <paramref name="dst"/> by key and values from <paramref name="overrideValues"/> if key not exists in <paramref name="dst"/> or <paramref name="isOverrideKeys"/> == true
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="dst">dictionary to update</param>
+        /// <param name="overrideValues">Source to update</param>
+        /// <param name="isOverrideKeys">Is override value if key exists in <paramref name="dst"/></param>
+        /// <returns>Updated <paramref name="dst"/></returns>
         public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> dst, IDictionary<TKey, TValue> overrideValues, bool isOverrideKeys = true)
         {
             foreach (var key in overrideValues.Keys)
