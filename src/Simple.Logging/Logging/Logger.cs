@@ -12,6 +12,8 @@ namespace Simple.Logging
             _logSource = logSource;
         }
 
+        #region ILogger
+
         /// <inheritdoc />
         public bool IsEnabled(LogLevel level)
             => LogManager.FilterIn(level, _logSource);
@@ -30,7 +32,9 @@ namespace Simple.Logging
 
         /// <inheritdoc />
         public IDisposable BeginScope<TState>(TState state) where TState : notnull
-            => throw new NotImplementedException();
+            => LogManager.ScopeProvider.Push(state);
+
+        #endregion
 
 
         protected virtual void SendMessage(ILogMessage message)

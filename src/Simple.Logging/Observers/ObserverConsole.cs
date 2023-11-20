@@ -24,12 +24,12 @@ namespace Simple.Logging.Observers
         {
             //lock (this)
             {
-                //var scopeItems = Configuration.IncludeScopes ? LogManager.ScopeProvider.Scopes() : new object[0];
-                //var scopes = LogManager.MessageFactory.CreateScopes(scopeItems);
+                var scopeItems = Configuration.IncludeScopes ? LogManager.ScopeProvider.Scopes() : [];
+                var scopes = LogManager.MessageFactory.CreateScopes(scopeItems);
                 var text = LogManager.MessageFactory.ToStringWithoutLevel(e);
 
                 WriteLevel(Console.Out, e.Level);
-                Console.Out.WriteLine(text);
+                Console.Out.WriteLine(scopes + text);
             }
         }
 
@@ -62,8 +62,8 @@ namespace Simple.Logging.Observers
             }
         }
 
-        internal const string DefaultForegroundColor = "\x1B[39m\x1B[22m"; // reset to default foreground color
-        internal const string DefaultBackgroundColor = "\x1B[49m"; // reset to the background color
+        internal const string DefaultForegroundColor = "\x1B[39m\x1B[22m";  // reset to default foreground color
+        internal const string DefaultBackgroundColor = "\x1B[49m";          // reset to the background color
 
         internal static string GetForegroundColorEscapeCode(ConsoleColor color)
         {
@@ -106,7 +106,6 @@ namespace Simple.Logging.Observers
     }
 
 #if !true
-
     public readonly struct EventId
     {
         public static implicit operator EventId(int i)
