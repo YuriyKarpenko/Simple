@@ -1,32 +1,47 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
-namespace Simple.Helpers
+namespace Followers
 {
     public static class Throw
     {
-        /// <summary>
-        /// Allows easy check the parameters
-        /// </summary>
+        /// <summary> Allows easy check the parameters </summary>
         /// <param name="value">Checking parameter</param>
         /// <param name="paramName">Parameters name for <see cref="ArgumentNullException"/></param>
         /// <param name="isValid">Addon test for paramrter</param>
-        /// <returns></returns>
+        /// <returns>Valid value</returns>
+#if NET6_0_OR_GREATER
+        public static T IsArgumentNullException<T>(T? value, Predicate<T>? isValid = null, [CallerArgumentExpression(nameof(value))] string? paramName = null)
+        {
+            ArgumentNullException.ThrowIfNull(value, paramName);
+            if (isValid?.Invoke(value) == false)
+            {
+                ArgumentException(paramName!);
+            }
+            return value;
+        }
+#else
         public static T IsArgumentNullException<T>(T? value, string paramName, Predicate<T>? isValid = null)
         {
-            if (value == null || isValid?.Invoke(value) == false)
+            if (value == null)
             {
-                ArgumentNullException(paramName);
+                Exception(new ArgumentNullException(paramName));
             }
+
+            if (isValid?.Invoke(value!) == false)
+            {
+                ArgumentException(paramName!);
+            }
+
             return value!;
         }
+#endif
 
-        /// <summary> Create and fire a <see cref="ArgumentNullException"/> </summary>
+        /// <summary> Create and fire a <see cref="ArgumentException"/> </summary>
         /// <param name="paramName"></param>
-        public static void ArgumentNullException(string paramName)
-            => Exception(new ArgumentNullException(paramName));
+        public static void ArgumentException(string paramName)
+            => Exception(new ArgumentException(paramName));
 
-        /// <summary> A single place for exceptions to appear </summary>
-        /// <param name="ex"></param>
         public static void Exception(Exception ex)
             => throw ex;
     }

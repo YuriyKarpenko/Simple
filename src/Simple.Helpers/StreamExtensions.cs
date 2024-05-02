@@ -5,9 +5,7 @@ using System.Threading.Tasks;
 
 namespace Simple.Helpers
 {
-    /// <summary>
-    /// Extensions for <see cref="MemoryStream"/>
-    /// </summary>
+    /// <summary> Extensions for <see cref="MemoryStream"/> </summary>
     public static class StreamExtensions
     {
         public static async Task<string?> ReadToEndAsync(this Stream stream)
@@ -28,18 +26,14 @@ namespace Simple.Helpers
             }
         }
 
-        /// <summary>
-        /// Gets the buffer segment.
-        /// </summary>
+        /// <summary> Gets the buffer segment. </summary>
         /// <param name="stream">The memory stream.</param>
         /// <returns>Buffer segment as bytes</returns>
         public static ArraySegment<byte> GetBufferSegment(this MemoryStream stream)
         {
-            if (stream.TryGetBuffer(out var buffer))
-            {
-                return buffer;
-            }
-            return default;
+            return stream.TryGetBuffer(out var buffer)
+                ? buffer
+                : default;
         }
     }
 }
