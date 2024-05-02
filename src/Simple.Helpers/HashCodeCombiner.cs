@@ -1,10 +1,10 @@
-﻿using System.Collections;
+﻿#if NETSTANDARD2_0
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Simple.Helpers
 {
-#if NETSTANDARD2_0
     //  from Microsoft.Extensions.FileSystemGlobbing, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60
     public struct HashCodeCombiner
     {
@@ -83,5 +83,5 @@ namespace Simple.Helpers
             return new HashCodeCombiner(5381L);
         }
     }
-#endif
 }
+#endif
