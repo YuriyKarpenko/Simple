@@ -3,14 +3,14 @@ using System.Collections.Concurrent;
 
 namespace Simple.DI
 {
-    public class Resolver<TKey> : IProviderSetup<TKey>
+    public class Resolver<TKey> : IProviderSetup<TKey> where TKey : notnull
     {
-        private readonly Resolver<TKey>? _resolverParent;
+        private readonly Resolver<TKey>? _parentResolver;
         private readonly ConcurrentDictionary<TKey, Func<object?>> _registry = new();
 
-        protected Resolver(Resolver<TKey>? registry)
+        protected Resolver(Resolver<TKey>? parentResolver)
         {
-            _resolverParent = registry;
+            _parentResolver = parentResolver;
         }
 
         #region IServiceProvider
@@ -18,11 +18,9 @@ namespace Simple.DI
         /// <inheritdoc />
         public virtual object? GetService(TKey key)
         {
-            if (_registry.TryGetValue(key, out var factory))
-            {
-                return factory();
-            }
-            return _resolverParent?.GetService(key);
+            return _registry.TryGetValue(key, out var factory)
+                ? factory()
+                : _parentResolver?.GetService(key);
         }
 
         public IProviderSetup<TKey> CreateScope()
@@ -56,7 +54,7 @@ namespace Simple.DI
 
     public class Resolver : Resolver<Type>, IProviderSetup, IServiceProvider
     {
-        public Resolver(Resolver<Type> registry = null) : base(registry)
+        public Resolver(Resolver<Type>? parentResolver = null) : base(parentResolver)
         {
         }
 

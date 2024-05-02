@@ -3,15 +3,17 @@
     <PropertyGroup>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
 
         <!--    package     -->
         <Description>
             Very light DI, but using only factory (Source of inspiration: https://github.com/reactiveui/splat)
         </Description>
+        <PackageOutputPath>..\..\Release\DI\</PackageOutputPath>
         <PackageTags>Simple;DI;Dependency Injection</PackageTags>
         <Title>Simple Dependency Injection</Title>
-        <Version>0.1.1.1</Version>
+        <AssemblyVersion>0.1.2.2</AssemblyVersion>
+        <Version>0.1.2</Version>
 
         <!--    all packages    -->
         <Authors>mail@yk.cc.ua</Authors>
@@ -24,7 +26,7 @@
 
     <ItemGroup>
         <None Include="..\..\LICENSE.txt" Pack="True" PackagePath="\" />
-        <None Include="..\..\README.md" Pack="True" PackagePath="\" />
+        <None Include="README.md" Pack="True" PackagePath="\" />
     </ItemGroup>
 
 </Project>

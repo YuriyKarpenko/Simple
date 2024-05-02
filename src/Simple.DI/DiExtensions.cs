@@ -10,7 +10,7 @@ namespace Simple.DI
 
         public static IProviderSetup AddConst<I>(this IProviderSetup setup, I instance)
         {
-            return UsingSetup(setup, s => s.Register(typeof(I), sp => instance));
+            return UsingSetup(setup, s => s.Register(typeof(I), _ => instance));
         }
 
         public static IProviderSetup AddSingleton<I>(this IProviderSetup setup, I instance)
@@ -23,7 +23,7 @@ namespace Simple.DI
         public static IProviderSetup AddSingleton<I>(this IProviderSetup setup, Func<I> factory)
         {
             I? instance = default;
-            return UsingSetup(setup, s => s.Register(typeof(I), sp => instance ?? (instance = factory())));
+            return UsingSetup(setup, s => s.Register(typeof(I), _ => instance ?? (instance = factory())));
         }
         public static IProviderSetup AddSingleton<I, T>(this IProviderSetup setup) where T : class, I, new()
             => AddSingleton<I>(setup, () => new T());
@@ -39,7 +39,7 @@ namespace Simple.DI
             => AddSingleton<I>(setup, () => new T());
 
         public static IProviderSetup AddTransient<I>(this IProviderSetup setup, Func<I> factory)
-            => UsingSetup(setup, s => s.Register(typeof(I), sp => factory()));
+            => UsingSetup(setup, s => s.Register(typeof(I), _ => factory()));
         public static IProviderSetup AddTransient<I>(this IProviderSetup setup, Func<IServiceProvider, I> factory)
             => UsingSetup(setup, s => s.Register(typeof(I), sp => factory(sp)));
         public static IProviderSetup AddTransient<I, T>(this IProviderSetup setup) where T : class, I, new()
