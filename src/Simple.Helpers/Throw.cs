@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Followers
+namespace Simple.Helpers
 {
     public static class Throw
     {

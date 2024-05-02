@@ -22,7 +22,7 @@ namespace Simple.DI
         /// <summary> Creating a type-resolver </summary>
         IServiceProvider BuildServiceProvider();
 
-        /// <inheritdoc />
+        /// <summary> Create a new <see cref="IProviderSetup"/> based on current (current will not be modified) </summary>
         new IProviderSetup CreateScope();
     }
 }
