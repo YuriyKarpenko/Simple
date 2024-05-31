@@ -1,0 +1,24 @@
+<Project>
+
+    <PropertyGroup>    
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+        <PackageOutputPath>..\..\Release\$(MSBuildProjectName)\</PackageOutputPath>
+    
+        <Authors>mail@yk.cc.ua</Authors>
+        <Company>YK</Company>
+        <Copyright>Copyright YK.</Copyright>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageProjectUrl>https://github.com/YuriyKarpenko/Simple</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\LICENSE.txt" Pack="True" PackagePath="\" Visible="false"/>
+        <None Include="README.md" Pack="True" PackagePath="\" />
+    </ItemGroup>
+
+</Project>

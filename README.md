@@ -1,5 +1,5 @@
 Projects:
-###################################################################################################
+###############################################################################
 # Simple.DI
 
 Pierian spring:
@@ -36,7 +36,7 @@ and using like a Splat.Locator, but has litle different names
 	update:
 		Small improvements to the hierarchy of classes
 
-###################################################################################################
+###############################################################################
 # Simple.Configuration
 
 Easy way to use JSON and Envirement parameters, which used like a MS in "Hosting" flow
@@ -56,7 +56,7 @@ Easy way to use JSON and Envirement parameters, which used like a MS in "Hosting
 	var myConfig = configuration.Json.GetValue("some section").ToObject<MyConfig>();
 ```
 
-###################################################################################################
+###############################################################################
 # Simple.Helpers
 
 ## Throw
@@ -77,7 +77,7 @@ using Simple;
 	fileName = Throw.IsArgumentNullException(fileName, nameof(fileName), i => !string.IsNullOrEmpty(i));
 ```
 
-## HashCoceCombiner 
+## HashCodeCombiner 
 class (from MS v2.2)
 
 ## Extensions
@@ -85,26 +85,9 @@ class (from MS v2.2)
 some extensions for Stream and collectopns
 ##  Release notes
 
-###################################################################################################
+###############################################################################
 # Simple.Ttl
 
-##	Using
-```cs
-private IRepoConfig _repo = ...
-private readonly TtlValue _configApp(TimeSpan.FromMinutes(5));
+This project about Time To Live (TTL) of variable. After a given period of time, the variable updates its value from the factory method.
 
-...
-
-public IConfigApp GetAppConfig()
-	=> _configApp.GetOrCreate(() => new ConfigApp(_repo.Get...(...)));
-```
-OR
-```cs
-public Task<IConfigApp> GetAppConfigAsync()
-	=> _configApp.GetOrCreateAsync(() => Get...Async(...));
-```
-##  Release notes
-0.1.3.3		- fixed asynchronous method TtlValue.GetOrCreateAsync
-0.1.2.2		- update class TtlDictionary and TtlValues
-
-###################################################################################################
+For details, open the folder /src/Simple.Ttl
