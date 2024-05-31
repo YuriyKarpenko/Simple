@@ -38,10 +38,10 @@ namespace Simple.Ttl
 
         public Task<T?> GetOrCreateAsync(Func<Task<T>> factory)
         {
-            //  if the Value is expired and not in process getting Value
-            if (IsExpired && _taskValue == null)
+            lock (_lock)
             {
-                lock (_lock)
+                //  if the Value is expired and not in process getting Value
+                if (IsExpired && _taskValue == null)
                 {
                     Interlocked.Exchange(ref _taskValue, factory().ContinueWith(SetAsync));
                 }

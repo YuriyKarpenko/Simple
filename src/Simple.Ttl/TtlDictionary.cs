@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Simple.Ttl
 {
-    public class TtlDictionary<TKey>
+    public class TtlDictionary<TKey> where TKey : notnull
     {
         private readonly ConcurrentDictionary<TKey, TtlBase> _cache = new ConcurrentDictionary<TKey, TtlBase>();
         private readonly TimeSpan _ttl;

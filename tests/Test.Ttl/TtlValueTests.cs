@@ -49,6 +49,34 @@ namespace Test.Ttl
             Assert.Equal(2, runCount);
         }
 
+        [Fact]
+        public async void GetOrCreateAsync_Parallel()
+        {
+            //  arange
+            var runCount = 0;
+            //var factory = () => Task.FromResult(++runCount);
+            async Task<int> factory()
+            {
+                await Task.Delay(100);
+                return ++runCount;
+            }
+
+            //  test
+            Parallel.Invoke(
+                async () => await svc.GetOrCreateAsync(factory),
+                async () => await svc.GetOrCreateAsync(factory),
+                async () => await svc.GetOrCreateAsync(factory),
+                async () => await svc.GetOrCreateAsync(factory),
+                async () => await svc.GetOrCreateAsync(factory),
+                async () => await svc.GetOrCreateAsync(factory)
+                );
+            var actual = await svc.GetOrCreateAsync(factory);
+
+            //  assert
+            Assert.Equal(1, actual);
+            Assert.Equal(1, runCount);
+        }
+
         [Theory]
         [InlineData(10, 2, 5)]
         //[InlineData(100, 10, 10)]     //  +1 - corretion with time of executing test (ttl = 0:00:01.0)

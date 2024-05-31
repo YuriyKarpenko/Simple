@@ -28,6 +28,69 @@ namespace Test.Ttl
         }
 
         [Fact]
+        public void GetOrCreate_Parallel()
+        {
+            //  arrange
+            var expected = 0;
+            int factory(string s)
+            {
+                Thread.Sleep(100);
+                return ++expected;
+            }
+
+            //  test
+            Parallel.Invoke(
+                () => svc.GetOrCreate(Key, factory),
+                () => svc.GetOrCreate(Key, factory),
+                () => svc.GetOrCreate(Key, factory),
+                () => svc.GetOrCreate(Key, factory),
+                () => svc.GetOrCreate(Key, factory),
+                () => svc.GetOrCreate(Key, factory),
+                () => svc.GetOrCreate(Key, factory),
+                () => svc.GetOrCreate(Key, factory),
+                () => svc.GetOrCreate(Key, factory),
+                () => svc.GetOrCreate(Key, factory)
+                );
+            var actual = svc.GetOrCreate(Key, factory);
+
+            //  assert
+            Assert.Equal(1, actual);
+        }
+
+        [Fact]
+        public async Task GetOrCreateAsync_Parallel()
+        {
+            //  arrange
+            var expected = 0;
+            async Task<int> factory(string s)
+            {
+                await Task.Delay(100);
+                return  ++expected;
+            }
+
+            //  test
+            Parallel.Invoke(
+                async () => await svc.GetOrCreateAsync(Key, factory),
+                async () => await svc.GetOrCreateAsync(Key, factory),
+                async () => await svc.GetOrCreateAsync(Key, factory),
+                async () => await svc.GetOrCreateAsync(Key, factory),
+                async () => await svc.GetOrCreateAsync(Key, factory),
+                async () => await svc.GetOrCreateAsync(Key, factory),
+                async () => await svc.GetOrCreateAsync(Key, factory),
+                async () => await svc.GetOrCreateAsync(Key, factory),
+                async () => await svc.GetOrCreateAsync(Key, factory),
+                async () => await svc.GetOrCreateAsync(Key, factory),
+                async () => await svc.GetOrCreateAsync(Key, factory),
+                async () => await svc.GetOrCreateAsync(Key, factory),
+                async () => await svc.GetOrCreateAsync(Key, factory)
+                );
+            var actual = await svc.GetOrCreateAsync(Key, factory);
+
+            //  assert
+            Assert.Equal(1, actual);
+        }
+
+        [Fact]
         public void Set()
         {
             //  arrange
