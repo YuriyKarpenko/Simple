@@ -1,6 +1,7 @@
 <Project>
 
     <PropertyGroup>    
+        <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
@@ -12,7 +13,6 @@
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageProjectUrl>https://github.com/YuriyKarpenko/Simple</PackageProjectUrl>
         <RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
     </PropertyGroup>
 

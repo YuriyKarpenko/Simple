@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>Another wrapper for Httpclient</Description>
+        <PackageProjectUrl>https://www.nuget.org/packages/Simple.Rest</PackageProjectUrl>
+        <PackageTags>Simple;REST;Httpclient</PackageTags>
+        <Title>Simple wraper of Httpclient</Title>
+        <AssemblyVersion>0.1.0.1</AssemblyVersion>
+        <Version>0.1.0</Version>
+        <RootNamespace>Simple.Rest</RootNamespace>
+    </PropertyGroup>
+
+</Project>
