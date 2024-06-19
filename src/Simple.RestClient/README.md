@@ -1,4 +1,4 @@
-# Simple.Rest
+# Simple.RestClient
 
 How often did we create a "bicycle" around Httpclient? This is the following))
 
@@ -46,5 +46,11 @@ OR
 
 ```
 ##  Release notes
+### 0.1.1
+    update:
+        namespace - Simple.Rest => Simple.RestClient (to according the package name)
+        DefaultHeaders - is virtual and read only
+        IRequest CreateRequest() - is virtual
+
 ### 0.1.0
 	start project

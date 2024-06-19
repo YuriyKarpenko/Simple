@@ -1,4 +1,4 @@
-﻿namespace Simple.Rest;
+﻿namespace Simple.RestClient;
 
 public interface IRequest
 {
@@ -8,7 +8,7 @@ public interface IRequest
     string? Content { get; }
     IDictionary<string, string> Headers { get; }
     IDictionary<string, string> Query { get; }
-    string QueryString {  get; }
+    string QueryString { get; }
 
 
     IRequest SetContent(string content);

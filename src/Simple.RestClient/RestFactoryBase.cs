@@ -1,8 +1,8 @@
-﻿namespace Simple.Rest;
+﻿namespace Simple.RestClient;
 
 public interface IRestFactory
 {
-    IRequest CreateRequest(string route, string method, string? token);
+    IRequest CreateRequest(string route, string method, string? token = null);
     Task<IResponse> ExecuteAsync(IRequest req);
 }
 
@@ -17,13 +17,14 @@ public class RestFactoryBase : IRestFactory
         DefaultHeaders = new Dictionary<string, string>();
     }
 
-    public Dictionary<string, string> DefaultHeaders { get; set; }
+    public virtual Dictionary<string, string> DefaultHeaders { get; }
 
     #region IRestFactory
 
-    public IRequest CreateRequest(string route, string method, string? token)
+    public virtual IRequest CreateRequest(string route, string method, string? token)
     {
-        IRequest req = new RestRequest(_baseAddress, route, method, new Dictionary<string, string>(DefaultHeaders));
+        var headers = new Dictionary<string, string>(DefaultHeaders, StringComparer.InvariantCultureIgnoreCase);
+        IRequest req = new RestRequest(_baseAddress, route, method, headers);
         return req.Token(token);
     }
 
@@ -40,9 +41,7 @@ public class RestFactoryBase : IRestFactory
 
     #endregion
 
-    //  TODO: encrypt
     protected virtual IRequest OnEncrypt(IRequest req) => req;
 
-    //  TODO: decrypt
     protected virtual IResponse OnDecrypt(IResponse resp) => resp;
 }

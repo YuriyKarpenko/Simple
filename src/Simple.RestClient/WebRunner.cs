@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Simple.Rest;
+namespace Simple.RestClient;
 
 /// <summary> For customize behavior we can use OR action-property OR override corresponding methods in inheritance-class (inheritance has more priority) </summary>
 public class WebRunner
