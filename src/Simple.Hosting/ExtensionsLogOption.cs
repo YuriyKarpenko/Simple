@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.Linq;
+
+using Newtonsoft.Json.Linq;
 
 using Simple.DI;
 using Simple.Logging.Configuration;
@@ -45,91 +47,74 @@ namespace Simple.Logging
         /// <param name="options"></param>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static ILogOptions AddConfiguration(this ILogOptions options, JToken? config)
+        public static ILogOptions AddConfiguration(this ILogOptions options, JToken? configToken)
         {
             Throw.IsArgumentNullException(options, nameof(options));
 
-            if (config != null)
+            if (configToken is JObject config)
             {
-                if (config is JObject configObject)
+                //if (config)
                 {
-                    var p = configObject.Property("Logging", StringComparison.OrdinalIgnoreCase);
-                    config = p?.Value ?? config;
+                    var p = config.Property("Logging", StringComparison.OrdinalIgnoreCase);
+                    config = p?.Value as JObject ?? config;
                 }
 
-                foreach (JProperty jp in config.Children())
-                {
-                    if (jp.Name.Equals("LogLevel", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Load global category defaults
-                        LoadRules(options.LogLevel, jp.Value);
-                        continue;
-                    }
+                // try load global category defaults
+                TryLoadRules(options.LogLevel, config, nameof(ILogOptions.LogLevel));
 
+                //Newtonsoft.Json.JsonConvert.PopulateObject(config.ToString(), options.RawOptions);
+
+                foreach (JProperty jp in config.Properties())
+                {
                     if (jp.Value is JObject jo)
                     {
-                        options.EnsureOptionItem(jp.Name).Populate(jo);
-                        //// raw options of ILogObserver (including filterItem)
-                        //var d = jo.ToObject<Dictionary<string, string>>();
-                        //optionItem.Options.Merge(d);
+                        //  fill other configurations
+                        var ro = new LogOptionItemRaw(options.LogLevel.Default);
+                        ro.Populate(jo);
+                        options.RawOptions[jp.Name] = ro;
 
-                        //if (jo.GetValue("LogLevel", StringComparison.OrdinalIgnoreCase) is JToken jp2)
+                        //if (jp.Name.Equals(LogOptionItemConsole.SConfigName, StringComparison.OrdinalIgnoreCase))
                         //{
-                        //    // Load logger specific rules
-                        //    LoadRules(optionItem.FilterItem, jp2);
+                        //    options.AddConsole(loi => loi.Populate(jo));
+                        //    config.Remove(jp.Name);
+                        //    continue;
                         //}
+
+                        //if (jp.Name.Equals(LogOptionItemDebug.SConfigName, StringComparison.OrdinalIgnoreCase))
+                        //{
+                        //    options.AddDebug(loi => loi.Populate(jo));
+                        //    config.Remove(jp.Name);
+                        //    continue;
+                        //}
+
+                        //options.EnsureOptionItem(new LogOptionItem(jp.Name)).Populate(jo);
                     }
                 }
 
-                //  options already include filters
-                options.AddDebug();
                 options.AddConsole();
+                options.AddDebug();
             }
 
             return options;
-
-            void LoadRules(LoggerFilterItem filter, JToken configurationSection)
-            {
-                Newtonsoft.Json.JsonConvert.PopulateObject(configurationSection.ToString(), filter);
-                //var dd = configurationSection
-                //    .ToObject<Dictionary<string, string?>>()!
-                //    .ToDictionary(
-                //        i => i.Key.Equals("Default", StringComparison.OrdinalIgnoreCase) ? string.Empty : i.Key,
-                //        i => ParseLogLevel(i.Value));
-                //foreach (var d in dd)
-                //{
-                //    filter.AddRule(d.Key, d.Value);
-                //}
-            }
-
-            //static LogLevel ParseLogLevel(string? source)
-            //{
-            //    switch (source?.ToLowerInvariant())
-            //    {
-            //        case "trace": return LogLevel.Trace;
-            //        case "debug": return LogLevel.Debug;
-            //        case "info": return LogLevel.Info;
-            //        case "warn": return LogLevel.Warning;
-            //        case "error": return LogLevel.Error;
-            //        case "critical": return LogLevel.Critical;
-            //        //  MS
-            //        case "information": return LogLevel.Info;
-            //        case "warning": return LogLevel.Warning;
-            //    };
-
-            //    return LogLevel.None;
-            //}
         }
 
-        public static void Populate(this LogOptionItem item, JObject jo)
+        static bool TryLoadRules(LoggerFilterItem filter, JToken? jtoken, string filterName = nameof(ILogOptionItem.LogLevel))
         {
-            if (jo.TryGetValue(nameof(LogOptionItem.LogLevel), StringComparison.InvariantCultureIgnoreCase, out var jt))
+            if (jtoken is JObject jo && jo.TryGetValue(filterName, StringComparison.OrdinalIgnoreCase, out var jt))
             {
-                Newtonsoft.Json.JsonConvert.PopulateObject(jt.ToString(), item.LogLevel);
-                jo.Remove(nameof(LogOptionItem.LogLevel));
+                Newtonsoft.Json.JsonConvert.PopulateObject(jt.ToString(), filter);
+                jo.Remove(filterName);
+                return true;
             }
 
-            Newtonsoft.Json.JsonConvert.PopulateObject(jo.ToString(), item.Options);
+            return false;
+        }
+
+        public static void Populate(this ILogOptionItem item, JObject jo)
+        {
+            TryLoadRules(item.LogLevel, jo);
+
+            Newtonsoft.Json.JsonConvert.PopulateObject(jo.ToString(), item);
         }
     }
 }

@@ -3,22 +3,14 @@ using Simple.DI;
 
 namespace Simple.Hosting;
 
-public class HostBuilderContext
+public class HostBuilderContext(IConfiguration config, IHostingEnvironment hostingEnv, IProviderSetup setup)
 {
-    public HostBuilderContext(IConfiguration config, IHostingEnvironment hostingEnv, IProviderSetup setup)
-    {
-        Configuration = config;
-        HostingEnvironment = hostingEnv;
-        ProviderSetup = setup;
-    }
-
-
     /// <summary> The <see cref="IConfiguration" /> containing the merged configuration of the application and the <see cref="IHost" /> </summary>
-    public IConfiguration Configuration { get; set; }
+    public IConfiguration Configuration { get; set; } = config;
 
     /// <summary> The <see cref="IHostingEnvironment" /> initialized by the <see cref="IHost" /> </summary>
-    public IHostingEnvironment HostingEnvironment { get; }
+    public IHostingEnvironment HostingEnvironment => hostingEnv;
 
     /// <summary> DI container setup </summary>
-    public IProviderSetup ProviderSetup { get; }
+    public IProviderSetup ProviderSetup => setup;
 }

@@ -129,7 +129,7 @@ public class HostBuilder : IHostBuilder
         }
 
         var configuration = builderConfig.Build();
-        services.AddConst<IConfiguration>(configuration);
+        services.AddSingleton(configuration);
         //  override configuration
         context.Configuration = configuration;
 

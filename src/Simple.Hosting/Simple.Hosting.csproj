@@ -1,23 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0</TargetFrameworks>
-		<!--    package     -->
 		<Description>Very light hosting, which used like a MS</Description>
 		<PackageTags>Simple;Hosting</PackageTags>
 		<Title>Simple hosting as MS</Title>
-		<AssemblyVersion>0.0.1.3</AssemblyVersion>
-		<Version>0.0.1</Version>
+		<AssemblyVersion>8.0.0.0</AssemblyVersion>
+		<Version>8.0.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Simple.DI" Version="0.1.2" />
-		<PackageReference Include="Simple.Configuration" Version="0.1.0" Condition="'$(Configuration)'=='Release'"/>
-		<PackageReference Include="Simple.Logging" Version="0.1.4" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\Simple.Configuration\Simple.Configuration.csproj" Condition="'$(Configuration)'=='Debug'"/>
+		<PackageReference Include="Simple.DI" Version="8.0.0" />
+		<PackageReference Include="Simple.Configuration" Version="0.1.0" />
+		<PackageReference Include="Simple.Logging" Version="8.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

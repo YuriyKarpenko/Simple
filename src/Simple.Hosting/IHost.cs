@@ -84,7 +84,7 @@ public class Host : IHost
             _hostedService = Services.GetServiceRequired<IHostedService>();
             await _hostedService.StartAsync(token).ConfigureAwait(false);
 
-            _applicationLifetime?.NotifyStarted();
+            _applicationLifetime.NotifyStarted();
         }
 
         //var application = BuildApplication();
@@ -115,13 +115,13 @@ public class Host : IHost
             Debug.Assert(_hostedService != null, "Hosted service are resolved when host is started.");
 
             // Fire IApplicationLifetime.Stopping
-            _applicationLifetime?.StopApplication();
+            _applicationLifetime.StopApplication();
 
             await _hostedService!.StopAsync(token).ConfigureAwait(false);
         }
 
         // Fire IApplicationLifetime.Stopped
-        _applicationLifetime?.NotifyStopped();
+        _applicationLifetime.NotifyStopped();
 
         _logger.DebugMethod(() => "Stopped");
     }
