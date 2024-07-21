@@ -1,34 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <LangVersion>latest</LangVersion>
-        <Nullable>enable</Nullable>
-        <TargetFramework>netstandard2.0</TargetFramework>
-
-        <!--    package     -->
+        <!--    package     
+        <TargetFrameworks>net6.0</TargetFrameworks>
+		-->
         <Description>Very light hosting, which used like a MS</Description>
         <PackageTags>Simple;Hosting</PackageTags>
         <Title>Simple hosting as MS</Title>
-        <Version>0.1.0.0</Version>
-
-        <!--    all packages    -->
-        <Authors>mail@yk.cc.ua</Authors>
-        <Company>YK</Company>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
+		<AssemblyVersion>0.0.1.1</AssemblyVersion>
+        <Version>0.0.1</Version>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Simple.Configuration\Simple.Configuration.csproj" />
-        <ProjectReference Include="..\Simple.DI\Simple.DI.csproj" />
-        <ProjectReference Include="..\Simple.Logging\Simple.Logging.csproj" />
+        <PackageReference Include="Simple.DI" Version="0.1.2" />
+        <PackageReference Include="Simple.Configuration" Version="0.1.0" />
+        <PackageReference Include="Simple.Logging" Version="0.1.4" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\..\LICENSE.txt" Pack="True" PackagePath="\" />
-        <None Include="..\..\README.md" Pack="True" PackagePath="\" />
+        <Using Include="System" />
+        <Using Include="System.Collections.Generic" />
+
+		<Using Include="Microsoft.Extensions.Logging" />
+		<Using Include="Simple.Helpers" />
+        <Using Include="Simple.Logging" />
     </ItemGroup>
 
 </Project>
