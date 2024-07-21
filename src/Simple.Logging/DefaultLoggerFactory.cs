@@ -11,13 +11,13 @@ namespace Simple.Logging
 
 
         /// <inheritdoc />
-        public ILogger GetLogger(Type logSource)
+        public ILogger CreateLogger(Type logSource)
         {
             return _cache.GetOrAdd(logSource, key => new DefaultLogger(key));
         }
 
         /// <inheritdoc />
-        public ILogger GetLogger<T>()
-            => GetLogger(typeof(T));
+        public ILogger CreateLogger<T>()
+            => CreateLogger(typeof(T));
     }
 }
