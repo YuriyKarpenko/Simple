@@ -1,36 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <LangVersion>latest</LangVersion>
-        <Nullable>enable</Nullable>
-        <TargetFramework>netstandard2.0</TargetFramework>
-
         <!--    package     -->
         <Description>Simple configure project from JSON and environment, which used like a MS</Description>
         <PackageTags>Simple;configuration;json configuration</PackageTags>
         <Title>Simple configure project</Title>
         <Version>0.1.0.0</Version>
-        
-        <!--    all packages    -->
-        <Authors>mail@yk.cc.ua</Authors>
-        <Company>YK</Company>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Simple.Helpers\Simple.Helpers.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="..\..\LICENSE.txt" Pack="True" PackagePath="\" />
-        <None Include="..\..\README.md" Pack="True" PackagePath="\" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Simple.Helpers" Version="0.1.0.3" />
     </ItemGroup>
 
 </Project>

@@ -41,7 +41,7 @@ namespace Simple.Configuration
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
         public static IConfigurationBuilder SetBasePath(this IConfigurationBuilder builder, string basePath)
         {
-            builder.Ensure().Properties[KeyBasePath] = Throw.IsArgumentNullException(basePath, nameof(basePath), i => !string.IsNullOrEmpty(i));
+            builder.Ensure().Properties[KeyBasePath] = Throw.IsArgumentNullException(basePath, i => !string.IsNullOrEmpty(i), nameof(basePath));
 
             return builder;
         }
@@ -82,7 +82,7 @@ namespace Simple.Configuration
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
         public static IConfigurationBuilder AddJsonFile(this IConfigurationBuilder builder, string fileOrPath, bool optional = false)
         {
-            Throw.IsArgumentNullException(fileOrPath, nameof(fileOrPath), i => !string.IsNullOrEmpty(i));
+            Throw.IsArgumentNullException(fileOrPath, i => !string.IsNullOrEmpty(i), nameof(fileOrPath));
             var (file, path) = fileOrPath == Path.GetFileName(fileOrPath)
                 ? (fileOrPath, default(string))
                 : (null, fileOrPath);
