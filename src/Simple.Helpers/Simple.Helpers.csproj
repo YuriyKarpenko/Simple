@@ -1,28 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <LangVersion>latest</LangVersion>
-        <Nullable>enable</Nullable>
-        <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
-
         <!--    package     -->
         <Description>Static throw helper + HashCoceCombiner class (from MS) + some extensions</Description>
         <PackageTags>Simple;helpers;Stream helper</PackageTags>
         <Title>Simple helper classes</Title>
-        <Version>0.1.0.1</Version>
-
-        <!--    all packages    -->
-        <Authors>mail@yk.cc.ua</Authors>
-        <Company>YK</Company>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
+        <Version>0.1.0.2</Version>
     </PropertyGroup>
-
-    <ItemGroup>
-        <None Include="..\..\LICENSE.txt" Pack="True" PackagePath="\" />
-        <None Include="README.md" Pack="True" PackagePath="\" />
-    </ItemGroup>
 
 </Project>

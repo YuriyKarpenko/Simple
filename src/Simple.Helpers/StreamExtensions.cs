@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Simple.Helpers
@@ -10,6 +11,8 @@ namespace Simple.Helpers
     {
         public static async Task<string?> ReadToEndAsync(this Stream stream)
         {
+            Throw.IsArgumentNullException(stream, nameof(stream));
+
             if (stream?.CanRead != true)
             {
                 return null;
@@ -35,5 +38,31 @@ namespace Simple.Helpers
                 ? buffer
                 : default;
         }
+
+        public static Task WriteAsync(this Stream stream, byte[] data, CancellationToken cancellationToken = default)
+        {
+#if NET6_0_OR_GREATER
+            Throw.IsArgumentNullException(stream, i => i.CanWrite);
+#else
+            Throw.IsArgumentNullException(stream, nameof(stream), i => i.CanWrite);
+#endif
+
+            return stream.WriteAsync(data, 0, data.Length, cancellationToken);
+        }
+        public static async Task<int> WriteAsync(this Stream stream, string content, Encoding encoding, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrEmpty(content))
+            {
+                return 0;
+            }
+
+            Throw.IsArgumentNullException(encoding, nameof(encoding));
+
+            var data = encoding.GetBytes(content);
+            await stream.WriteAsync(data, cancellationToken);
+            return data.Length;
+        }
+        public static Task<int> WriteAsync(this Stream stream, string content, CancellationToken cancellationToken = default)
+            => WriteAsync(stream, content, Encoding.UTF8, cancellationToken);
     }
 }
