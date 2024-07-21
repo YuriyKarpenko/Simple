@@ -9,7 +9,7 @@
         <Authors>mail@yk.cc.ua</Authors>
         <Company>YK</Company>
         <Copyright>Copyright YK.</Copyright>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageProjectUrl>https://github.com/YuriyKarpenko/Simple</PackageProjectUrl>
