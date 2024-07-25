@@ -43,7 +43,7 @@ namespace Simple.Logging.Configuration
 
         public bool Filter(ILogMessage message)
         {
-            var fullName = message.LogSource.FullName;
+            var fullName = message.LogSource;
             var matches = GetRules(fullName);
             var level = FilterMatces(matches);
             return message.Level >= level;

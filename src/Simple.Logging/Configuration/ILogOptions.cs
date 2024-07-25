@@ -4,9 +4,10 @@ namespace Simple.Logging.Configuration
 {
     public interface ILogOptions
     {
-        LogLevel MinLevel { get; }
-        /// <summary> [ObserverName, Json] </summary>
+        /// <summary> [ObserverName, Json] (observers RAW options) </summary>
         IDictionary<string, string> ObserversOptions { get; }
+
+        /// <summary> Filters of all observers </summary>
         LoggerFilterOptions FilterOptions { get; }
     }
 }

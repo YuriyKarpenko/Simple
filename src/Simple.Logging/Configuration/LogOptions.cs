@@ -3,18 +3,19 @@ using System.Collections.Generic;
 
 namespace Simple.Logging.Configuration
 {
-    public class LogOptions : ILogOptions
+    internal class LogOptions : ILogOptions
     {
         public static readonly LogOptions Instance = new();
 
         private LogOptions()
         {
             ObserversOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            FilterOptions = new LoggerFilterOptions();
         }
 
-        public LogLevel MinLevel => FilterOptions.Default.MinLevel;
-        public LoggerFilterOptions FilterOptions { get; }
+        /// <summary> [ObserverName, Json] (observers RAW options) </summary>
+        public LoggerFilterOptions FilterOptions => LoggerFilterOptions.Instance;
+
+        /// <summary> Filters of all observers </summary>
         public IDictionary<string, string> ObserversOptions { get; }
     }
 

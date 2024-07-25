@@ -2,19 +2,25 @@
 
 namespace Simple.Logging.Messages
 {
-    public class LogMessageString : LogMessageBase
+    public class LogMessageString : ILogMessage
     {
-        public LogMessageString(Type logSource, LogLevel level, string message, Exception? exception) : base(logSource, level, exception)
+        public LogMessageString(string logSource, LogLevel level, string? state, Exception? exception)
         {
-            Message = message;
+            Created = DateTime.UtcNow;
+            Exception = exception;
+            Level = level;
+            LogSource = logSource;
+            State = state;
         }
 
-        public string Message { get; set; }
+        public DateTime Created { get; }
+        public string LogSource { get; }
+        public LogLevel Level { get; }
+        public string? State { get; }
+        public Exception? Exception { get; }
+
 
         public override string ToString()
-        {
-            var end = Exception == null ? string.Empty : $"\n {Exception}";
-            return $"{Level,-8} - {Name,-10} : {Message} {end}\n";
-        }
+            => $"{Level,-9} {State} [{LogSource}]";
     }
 }

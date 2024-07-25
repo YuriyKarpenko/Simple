@@ -9,5 +9,9 @@ and using like a Splat.Locator, but has litle different names
 ```
 
 ##  Release notes
+0.1.1
+	Update:
+		logSource changed (Type => string)
+		remove "EventId" from ILogger
 0.1.0
 	start
