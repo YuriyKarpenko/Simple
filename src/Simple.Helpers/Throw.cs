@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Simple.Helpers
 {
@@ -11,13 +13,18 @@ namespace Simple.Helpers
         /// <param name="isValid">Addon test for paramrter</param>
         /// <returns>Valid value</returns>
 #if NET6_0_OR_GREATER
-        public static T IsArgumentNullException<T>(T? value, Predicate<T>? isValid = null, [CallerArgumentExpression(nameof(value))] string? paramName = null)
+        public static T IsArgumentNullException<T>([NotNull] T? value, Predicate<T>? isValid, [CallerArgumentExpression(nameof(value))] string? paramName = null)
         {
             ArgumentNullException.ThrowIfNull(value, paramName);
             if (isValid?.Invoke(value) == false)
             {
                 ArgumentException(paramName!);
             }
+            return value;
+        }
+        public static T IsArgumentNullException<T>([NotNull] T? value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
+        {
+            ArgumentNullException.ThrowIfNull(value, paramName);
             return value;
         }
 #else
@@ -37,12 +44,16 @@ namespace Simple.Helpers
         }
 #endif
 
-        /// <summary> Create and fire a <see cref="ArgumentException"/> </summary>
+        /// <summary> Create and fire a <see cref="System.ArgumentException"/> </summary>
         /// <param name="paramName"></param>
         public static void ArgumentException(string paramName)
             => Exception(new ArgumentException(paramName));
 
         public static void Exception(Exception ex)
             => throw ex;
+        public static T Exception<T>(Exception ex)
+            => throw ex;
+        public static Task<T> ExceptionAsync<T>(Exception ex)
+            => Task.FromException<T>(ex);
     }
 }
