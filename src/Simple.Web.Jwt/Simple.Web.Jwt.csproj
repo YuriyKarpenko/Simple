@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <!--    package     -->
+        <Description>Very light and fast Jwt provider</Description>
+        <PackageTags>Simple;Jwt</PackageTags>
+        <Title>Simple and fast Jwt provider</Title>
+		<AssemblyVersion>0.0.1.0</AssemblyVersion>
+        <Version>0.0.1</Version>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Simple.Helpers" Version="0.1.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="System" />
+        <Using Include="System.Collections.Generic" />
+
+        <Using Include="Simple.Helpers" />
+    </ItemGroup>
+
+</Project>
