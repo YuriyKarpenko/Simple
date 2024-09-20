@@ -5,6 +5,7 @@ namespace Simple.Web.Jwt;
 /// </summary>
 public static class ClaimName
 {
+    //  https://datatracker.ietf.org/doc/html/rfc7519#section-10.1.2
     public const string Issuer = "iss";
 
     public const string Subject = "sub";
@@ -19,6 +20,7 @@ public static class ClaimName
 
     public const string JwtId = "jti";
 
+    //  other names
     public const string FullName = "name";
 
     public const string GivenName = "given_name";
