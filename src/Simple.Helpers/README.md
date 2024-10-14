@@ -31,6 +31,11 @@ some other extensions
 
 ##  Release notes
 
+0.1.0.3
+	update(fixed):
+		added Throw.IsArgumentNullException override (for netstandard2.0)
+		rename Extensions => ExtensionsHex + refactoring ToHexString()
+
 0.1.0.2
 	append:
 		Stream.WriteAsync()

@@ -28,12 +28,19 @@ namespace Simple.Helpers
             return value;
         }
 #else
-        public static T IsArgumentNullException<T>(T? value, string paramName, Predicate<T>? isValid = null)
+        public static T IsArgumentNullException<T>(T? value, string paramName)
         {
             if (value == null)
             {
                 Exception(new ArgumentNullException(paramName));
             }
+
+            return value!;
+        }
+
+        public static T IsArgumentNullException<T>(T? value, Predicate<T>? isValid, string paramName)
+        {
+            IsArgumentNullException(value, paramName);
 
             if (isValid?.Invoke(value!) == false)
             {

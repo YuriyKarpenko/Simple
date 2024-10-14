@@ -41,11 +41,7 @@ namespace Simple.Helpers
 
         public static Task WriteAsync(this Stream stream, byte[] data, CancellationToken cancellationToken = default)
         {
-#if NET6_0_OR_GREATER
-            Throw.IsArgumentNullException(stream, i => i.CanWrite);
-#else
-            Throw.IsArgumentNullException(stream, nameof(stream), i => i.CanWrite);
-#endif
+            Throw.IsArgumentNullException(stream, i => i.CanWrite, nameof(stream));
 
             return stream.WriteAsync(data, 0, data.Length, cancellationToken);
         }

@@ -5,7 +5,7 @@
         <Description>Static throw helper + HashCoceCombiner class (from MS) + some extensions</Description>
         <PackageTags>Simple;helpers;Stream helper</PackageTags>
         <Title>Simple helper classes</Title>
-        <Version>0.1.0.2</Version>
+        <Version>0.1.0.3</Version>
     </PropertyGroup>
 
 </Project>
