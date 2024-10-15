@@ -1,23 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Simple.Logging.Configuration
 {
-    internal class LogOptions : ILogOptions
+    public class LogOptions : Dictionary<string, LogOptionItem>, ILogOptions
     {
         public static readonly LogOptions Instance = new();
 
-        private LogOptions()
+        private LogOptions() : base(StringComparer.OrdinalIgnoreCase)
         {
-            FilterOptions = new LoggerFilterOptions();
-            ObserversOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            Default = new LoggerFilterItem(null);
         }
 
-        /// <summary> [ObserverName, Json] (observers RAW options) </summary>
-        public LoggerFilterOptions FilterOptions { get; }
+        public LoggerFilterItem Default { get; set; }
 
-        /// <summary> Filters of all observers </summary>
-        public IDictionary<string, string> ObserversOptions { get; }
+
+
+        public bool FilterIn(LogLevel level, string logSource)
+        {
+            return Default.Filter(level, logSource) ||
+                Values.Any(option => option.FilterItem.Filter(level, logSource));
+        }
+
+        public LogOptionItem EnsureOptionItem(string observerName)
+        {
+            if (!TryGetValue(observerName, out var optionItem))
+            {
+                this[observerName] = optionItem = new LogOptionItem(Default.MinLevel);
+            }
+            return optionItem;
+        }
+
+        public void SetFilterItem(string observerName, LoggerFilterItem filterItem)
+        {
+            Throw.IsArgumentNullException(observerName, nameof(observerName));
+            Throw.IsArgumentNullException(filterItem, nameof(filterItem));
+            EnsureOptionItem(observerName).FilterItem = filterItem;
+        }
     }
 
 

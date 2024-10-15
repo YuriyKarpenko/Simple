@@ -15,7 +15,7 @@ namespace Simple.Logging.Observers
         }
 
 
-        public LoggerFilterItem FilterItem => _options.FilterOptions.EnsureFilterItem(Name);
+        public LoggerFilterItem FilterItem => _options.EnsureOptionItem(Name).FilterItem;
 
         /// <inheritdoc />
         public abstract string Name { get; }
@@ -31,7 +31,7 @@ namespace Simple.Logging.Observers
         /// <inheritdoc />
         public void OnNext(ILogMessage value)
         {
-            if (FilterItem.Filter(value.Level, value.LogSource) || _options.FilterOptions.Default.Filter(value.Level, value.LogSource))
+            if (FilterItem.Filter(value.Level, value.LogSource) || _options.Default.Filter(value.Level, value.LogSource))
             {
                 Write(value);
             }

@@ -3,19 +3,22 @@
 using Simple.Logging.Configuration;
 using Simple.Logging.Messages;
 
-namespace Simple.Logging
+namespace Simple.Logging;
+
+public class LogManager
 {
-    public class LogManager
+    public static LogLevel DefaultMinLevel
     {
-        public static LogLevel DefaultMinLevel { get; set; } = LogLevel.Error;
-
-        public static ILoggerFactory LoggerFactory { get; set; } = new DefaultLoggerFactory();
-
-        public static ILogOptions Options { get; set; } = LogOptions.Instance;
-
-        public static ILogMessageFactory MessageFactory { get; set; } = new DefaultLogMessageFactory();
-
-        //  filtering helpers
-        public static Func<LogLevel, string, bool> FilterIn => Options.FilterOptions.FilterIn;
+        get => Options.Default.MinLevel;
+        set => Options.Default.MinLevel = value;
     }
+
+    public static ILoggerFactory LoggerFactory { get; set; } = new DefaultLoggerFactory();
+
+    public static ILogOptions Options => LogOptions.Instance;
+
+    public static ILogMessageFactory MessageFactory { get; set; } = new DefaultLogMessageFactory();
+
+    //  filtering helpers
+    public static Func<LogLevel, string, bool> FilterIn => Options.FilterIn;
 }
