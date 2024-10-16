@@ -2,12 +2,10 @@
 
 namespace Simple.Logging.Messages
 {
-    public interface ILogMessageFactory<TLogMessage> where TLogMessage : ILogMessage
+    public interface ILogMessageFactory
     {
-        TLogMessage CreateMessage<TState>(Type logSource, LogLevel level, int eventId, TState state, Exception? exception);
-    }
-
-    public interface ILogMessageFactory : ILogMessageFactory<ILogMessage>
-    {
+        ILogMessage CreateMessage<TState>(string logSource, LogLevel level, TState state, Exception? exception, Func<TState, Exception?, string>? formatter = null);
+        string CreateScopes(object[] scopes);
+        string ToStringWithoutLevel(ILogMessage message);
     }
 }

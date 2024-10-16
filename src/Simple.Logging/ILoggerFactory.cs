@@ -4,7 +4,8 @@ namespace Simple.Logging
 {
     public interface ILoggerFactory
     {
-        ILogger GetLogger(Type source);
-        ILogger GetLogger<T>();
+        ILogger CreateLogger(string source);
+        ILogger CreateLogger(Type source);
+        ILogger CreateLogger<T>();
     }
 }

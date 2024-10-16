@@ -9,13 +9,23 @@ namespace Simple.Logging.Configuration
 {
     public class LoggerFilterOptions
     {
-        public LoggerFilterItem Default { get; set; } = LoggerFilterItem.Default;
-        public IDictionary<string, LoggerFilterItem> Rules { get; } = new Dictionary<string, LoggerFilterItem>(StringComparer.OrdinalIgnoreCase);
+        public static LoggerFilterOptions Instance = new LoggerFilterOptions();
+
+        private LoggerFilterOptions()
+        {
+            Rules = new Dictionary<string, LoggerFilterItem>(StringComparer.OrdinalIgnoreCase);
+            Default = new LoggerFilterItem(null);
+        }
+
+        public LoggerFilterItem Default { get; set; }
+
+        /// <summary> [ObserverName, ObserverFilter] Observers filters </summary>
+        public IDictionary<string, LoggerFilterItem> Rules { get; }
 
 
         public bool FilterIn(ILogMessage message)
         {
-            var fullName = message.LogSource.FullName;
+            var fullName = message.LogSource;
             var matches = Rules.Values
                 .SelectMany(i => i.GetRules(fullName))
                 .Union(Default.GetRules(fullName))

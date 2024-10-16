@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Simple.Helpers;
-
 namespace Simple.Logging.Observers
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]

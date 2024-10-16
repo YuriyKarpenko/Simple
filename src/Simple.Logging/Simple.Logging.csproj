@@ -1,34 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <LangVersion>latest</LangVersion>
-        <Nullable>enable</Nullable>
-        <TargetFramework>netstandard2.0</TargetFramework>
-
         <!--    package     -->
         <Description>Very light logging</Description>
         <PackageTags>Simple;Loging;Logger;Console Logger</PackageTags>
         <Title>Simple Logging</Title>
-        <Version>0.1.0</Version>
-        
-        <!--    all packages    -->
-        <Authors>mail@yk.cc.ua</Authors>
-        <Company>YK</Company>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
+        <Version>0.1.1</Version>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-        <ProjectReference Include="..\Simple.DI\Simple.DI.csproj" />
-        <ProjectReference Include="..\Simple.Helpers\Simple.Helpers.csproj" />
+        <PackageReference Include="Simple.Helpers" Version="0.1.0.3" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\..\LICENSE.txt" Pack="True" PackagePath="\" />
-        <None Include="..\..\README.md" Pack="True" PackagePath="\" />
+        <Using Include="Simple.Helpers"/>
     </ItemGroup>
-
 </Project>

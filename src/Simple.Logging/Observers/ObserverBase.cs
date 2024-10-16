@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 
-using Simple.Helpers;
 using Simple.Logging.Messages;
 
 namespace Simple.Logging.Observers
@@ -31,7 +30,13 @@ namespace Simple.Logging.Observers
 
     public abstract class ObserverBase<T> : ObserverBase where T : ObserverBase
     {
-        public static string ObserverName => Throw.IsArgumentNullException(typeof(T).GetCustomAttribute<LoggerNameAttribute>(), nameof(LoggerNameAttribute)).Name;
+        private static readonly string ObserverName;
+        static ObserverBase()
+        {
+            var a = typeof(T).GetCustomAttribute<LoggerNameAttribute>();
+            ObserverName = Throw.IsArgumentNullException(a, nameof(LoggerNameAttribute)).Name;
+        }
+
 
         public override string Name => ObserverName;
     }
