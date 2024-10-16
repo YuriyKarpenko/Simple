@@ -7,7 +7,7 @@
         <Description>Very light hosting, which used like a MS</Description>
         <PackageTags>Simple;Hosting</PackageTags>
         <Title>Simple hosting as MS</Title>
-		<AssemblyVersion>0.0.1.1</AssemblyVersion>
+		<AssemblyVersion>0.0.1.2</AssemblyVersion>
         <Version>0.0.1</Version>
     </PropertyGroup>
 
