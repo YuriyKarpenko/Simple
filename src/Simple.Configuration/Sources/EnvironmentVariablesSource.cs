@@ -28,14 +28,14 @@ namespace Simple.Configuration.Sources
             //    .Where(entry => entry.Key.StartsWith(_prefix, StringComparison.OrdinalIgnoreCase))
             //    .ToDictionary(i => i.Key.Substring(_prefix.Length), i => i.Value);
 
-            config.Merge(dic);
+            config.Merge(dic!);
 
             return config;
         }
 
 
         private string KeyConvert(DictionaryEntry de)
-            => de.Key.ToString().Substring(_prefix.Length);
+            => de.Key.ToString()!.Substring(_prefix.Length);
 
     }
 }

@@ -1,8 +1,6 @@
 ﻿namespace Simple.Configuration.Sources
 {
-    /// <summary>
-    /// Represents a chained IConfiguration as an <see cref="IConfigurationSource"/>.
-    /// </summary>
+    /// <summary> Represents a chained IConfiguration as an <see cref="IConfigurationSource"/>. /// </summary>
     internal class ChainedSource : IConfigurationSource
     {
         private readonly IConfiguration _configuration;
