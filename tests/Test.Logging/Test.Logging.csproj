@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Simple.Logging\Simple.Logging.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Simple.Logging"/>
+    </ItemGroup>
+
+</Project>
