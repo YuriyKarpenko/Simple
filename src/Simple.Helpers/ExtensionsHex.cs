@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Simple.Helpers
 {
-    public static class Extensions
+    public static class ExtensionsHex
     {
         public static T GetServiceRequired<T>(this IServiceProvider sp)
         {
@@ -12,17 +12,17 @@ namespace Simple.Helpers
             return Throw.IsArgumentNullException(o, typeof(T).Name);
         }
 
-        public static string ToHexString(this IEnumerable<byte> src)
+        public static string ToHexString(this IEnumerable<byte> src, string byteSeparator = "")
         {
             var ss = src.Select(ToHexStr).ToArray();
-            return "0x" + string.Join(string.Empty, ss);
+            return string.Join(byteSeparator, ss);
         }
 
         public static string ToHexStr(this byte b)
         {
             var l = ToHexChar(b & 0x0F);
             var h = ToHexChar(b >> 4);
-            return new string(new[] { h, l });
+            return new string([ h, l ]);
         }
 
         public static char ToHexChar(this int i)
