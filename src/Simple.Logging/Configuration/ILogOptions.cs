@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
-
-namespace Simple.Logging.Configuration
+﻿namespace Simple.Logging.Configuration
 {
     public interface ILogOptions
     {
-        /// <summary> [ObserverName, Json] (observers RAW options) </summary>
-        IDictionary<string, string> ObserversOptions { get; }
+        /// <summary> Common filter </summary>
+        LoggerFilterItem Default { get; }
 
-        /// <summary> Filters of all observers </summary>
-        LoggerFilterOptions FilterOptions { get; }
+        /// <summary> Can process the log-message with <paramref name="level"/> and <paramref name="logSource"/> /> </summary>
+        /// <returns>Can we process this message</returns>
+        bool FilterIn(LogLevel level, string logSource);
+
+        LogOptionItem EnsureOptionItem(string observerName);
+
+        void SetFilterItem(string observerName, LoggerFilterItem filterItem);
     }
 }

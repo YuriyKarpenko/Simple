@@ -9,6 +9,12 @@ and using like a Splat.Locator, but has litle different names
 ```
 
 ##  Release notes
+0.1.2
+	Append:
+		implement scope
+	Update:
+		Configurations
+		ObservableConsole
 0.1.1
 	Update:
 		logSource changed (Type => string)

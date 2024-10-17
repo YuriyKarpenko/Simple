@@ -17,15 +17,27 @@ namespace Simple.Logging
             => LogManager.LoggerFactory.CreateLogger<T>();
 
 
-        public static ILogOptions AddConsole(this ILogOptions o)
+        public static ILogOptions AddConsole(this ILogOptions o, Action<LoggerFilterItem, ConfigurationConsole>? configure = null)
         {
-            LoggingBus.Instance.Subscribe(new ObserverConsole());
+            var observer = new ObserverConsole(o, configure);
+            return o.AddObserver(observer);
+        }
+
+        public static ILogOptions AddDebug(this ILogOptions o, Action<LoggerFilterItem>? configure = null)
+        {
+            var observer = new ObserverDebug(o, configure);
+            return o.AddObserver(observer);
+        }
+
+        public static ILogOptions AddObserver(this ILogOptions o, ILogObserver observer)
+        {
+            LoggingBus.Instance.Subscribe(observer);
             return o;
         }
 
-        public static ILogOptions AddDebug(this ILogOptions o)
+        public static ILogOptions SetMinLevel(this ILogOptions o, LogLevel level)
         {
-            LoggingBus.Instance.Subscribe(new ObserverDebug());
+            o.Default.MinLevel = level;
             return o;
         }
     }

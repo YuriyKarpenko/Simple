@@ -1,61 +1,81 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 using Simple.Logging.Messages;
+using Simple.Logging.Observers;
 
 namespace Simple.Logging.Logging
 {
-    public class LoggingBus<TMessage> : ILoggingBus<TMessage>
+    public class LoggingBus : ILoggingBus<ILogMessage>
     {
-        public static readonly ILoggingBus<TMessage> Instance = new LoggingBus<TMessage>();
+        public static readonly ILoggingBus<ILogMessage> Instance = new LoggingBus();
 
 
-        private readonly IList<SubscriberEntry<TMessage>> _targets = new List<SubscriberEntry<TMessage>>();
+        private readonly ConcurrentDictionary<string, SubscriberEntry> _targets
+            = new ConcurrentDictionary<string, SubscriberEntry>(StringComparer.OrdinalIgnoreCase);
 
-        public virtual void Push(TMessage entry)
+        public virtual void Push(ILogMessage entry)
         {
-            Task.Run(() =>
+            //Task.Run(() =>
             {
-                foreach (var t in _targets)
+                var targets = _targets.Values;
+                foreach (var t in targets)
                 {
                     t.OnNext(entry);
                 }
-            }).ConfigureAwait(false);
+            }
+            //).ConfigureAwait(false);
         }
 
-        public IDisposable Subscribe(IObserver<TMessage> observer)
+        public IDisposable Subscribe(IObserver<ILogMessage> observer)
         {
-            var res = new SubscriberEntry<TMessage>(observer, RemoveSubscriber);
-            _targets.Add(res);
-            return res;
+            if (observer is ILogObserver lo)
+            {
+                if (_targets.TryGetValue(lo.Name, out var entry))
+                {
+                    entry.Dispose();
+                }
+
+                var res = new SubscriberEntry(lo, RemoveSubscriber);
+                _targets[lo.Name] = res;
+                return res;
+            }
+
+            return NoopDisposable.Instance;
         }
 
-        public void Clear()
-        {
-            _targets.Clear();
-        }
+        //public void Clear()
+        //{
+        //    _targets.Clear();
+        //}
 
-        private void RemoveSubscriber(SubscriberEntry<TMessage> value)
+        private void RemoveSubscriber(SubscriberEntry value)
         {
             //Volatile.Write<Node>(ref tables._buckets[bucketNo], new Node(key, value, hashcode, tables._buckets[bucketNo]));
             //checked
             //{
             //    tables._countPerLock[lockNo]++;
             //}
-            _targets.Remove(value);
+            if (_targets.TryRemove(value.Name, out var d))
+            {
+                d.Dispose();
+            }
         }
 
-        private class SubscriberEntry<T> : IObserver<T>, IDisposable
+        private class SubscriberEntry : IObserver<ILogMessage>, IDisposable
         {
-            private readonly IObserver<T> _value;
-            private readonly Action<SubscriberEntry<T>> _onDispose;
+            private readonly IObserver<ILogMessage> _value;
+            private readonly Action<SubscriberEntry> _onDispose;
 
-            public SubscriberEntry(IObserver<T> value, Action<SubscriberEntry<T>> onDispose)
+            public SubscriberEntry(ILogObserver value, Action<SubscriberEntry> onDispose)
             {
                 _value = value;
                 _onDispose = onDispose;
+                Name = value.Name;
             }
+
+
+            public string Name { get; }
 
             #region IDisposable
 
@@ -89,7 +109,7 @@ namespace Simple.Logging.Logging
 
             public void OnCompleted() => _value.OnCompleted();
             public void OnError(Exception error) => _value.OnError(error);
-            public void OnNext(T value) => _value.OnNext(value);
+            public void OnNext(ILogMessage value) => _value.OnNext(value);
 
             #endregion
         }
@@ -102,9 +122,5 @@ namespace Simple.Logging.Logging
             {
             }
         }
-    }
-
-    public class LoggingBus : LoggingBus<ILogMessage>
-    {
     }
 }

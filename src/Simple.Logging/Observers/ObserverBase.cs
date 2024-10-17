@@ -1,16 +1,26 @@
 ﻿using System;
 using System.Reflection;
 
+using Simple.Logging.Configuration;
 using Simple.Logging.Messages;
 
 namespace Simple.Logging.Observers
 {
-    public abstract class ObserverBase : ILogObserver<ILogMessage>
+    public abstract class ObserverBase : ILogObserver
     {
+        protected readonly ILogOptions _options;
+        public ObserverBase(ILogOptions options)
+        {
+            _options = options;
+        }
+
+
+        public LoggerFilterItem FilterItem => _options.EnsureOptionItem(Name).FilterItem;
+
         /// <inheritdoc />
         public abstract string Name { get; }
 
-        protected abstract void Write(ILogMessage value);
+        #region IObserver
 
         /// <inheritdoc />
         public void OnCompleted() { }
@@ -21,22 +31,28 @@ namespace Simple.Logging.Observers
         /// <inheritdoc />
         public void OnNext(ILogMessage value)
         {
-            if (LogManager.FilterOut(value, this))
+            if (FilterItem.Filter(value.Level, value.LogSource) || _options.Default.Filter(value.Level, value.LogSource))
             {
                 Write(value);
             }
         }
+
+        #endregion
+
+        protected abstract void Write(ILogMessage value);
     }
 
     public abstract class ObserverBase<T> : ObserverBase where T : ObserverBase
     {
-        private static readonly string ObserverName;
+        public static readonly string ObserverName;
         static ObserverBase()
         {
             var a = typeof(T).GetCustomAttribute<LoggerNameAttribute>();
             ObserverName = Throw.IsArgumentNullException(a, nameof(LoggerNameAttribute)).Name;
         }
 
+
+        public ObserverBase(ILogOptions options) : base(options) { }
 
         public override string Name => ObserverName;
     }

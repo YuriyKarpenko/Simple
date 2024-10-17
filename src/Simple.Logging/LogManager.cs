@@ -2,23 +2,26 @@
 
 using Simple.Logging.Configuration;
 using Simple.Logging.Messages;
-using Simple.Logging.Observers;
+using Simple.Logging.Scope;
 
-namespace Simple.Logging
+namespace Simple.Logging;
+
+public class LogManager
 {
-    public class LogManager
+    public static LogLevel DefaultMinLevel
     {
-        public static LogLevel DefaultMinLevel { get; set; } = LogLevel.Error;
-
-        public static ILoggerFactory LoggerFactory { get; set; } = new DefaultLoggerFactory();
-
-        public static ILogOptions Options { get; set; } = LogOptions.Instance;
-        public static ILogMessageFactory MessageFactory { get; set; } = new DefaultLogMessageFactory();
-
-        //  for ILogger
-        public static Func<ILogMessage, bool> FilterIn { get; set; } = (_) => true;
-
-        //  for ILogObserver
-        public static Func<ILogMessage, ILogObserver, bool> FilterOut { get; set; } = (_, _) => true;
+        get => Options.Default.MinLevel;
+        set => Options.Default.MinLevel = value;
     }
+
+    public static ILoggerFactory LoggerFactory { get; set; } = new DefaultLoggerFactory();
+
+    public static ILogOptions Options => LogOptions.Instance;
+
+    public static ILogMessageFactory MessageFactory { get; set; } = new DefaultLogMessageFactory();
+
+    public static IScopeProvider ScopeProvider { get; set; } = new DefaultScopeProvider();
+
+    //  filtering helpers
+    public static Func<LogLevel, string, bool> FilterIn => Options.FilterIn;
 }

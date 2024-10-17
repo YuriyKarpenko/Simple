@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Simple.Logging.Logging
+namespace Simple.Logging
 {
     public interface ILoggingBus<TLogMessage> : IObservable<TLogMessage>
     {

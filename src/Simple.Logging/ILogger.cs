@@ -19,7 +19,7 @@ namespace Simple.Logging
         /// <param name="exception">The exception related to this entry.</param>
         /// <param name="formatter">Function to create a <see cref="string"/> message of the <paramref name="state"/> and <paramref name="exception"/>.</param>
         /// <typeparam name="TState">The type of the object to be written.</typeparam>
-        ILogMessage Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string>? formatter = null);
+        ILogMessage? Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string>? formatter = null);
 
         /// <summary>
         /// Begins a logical operation scope.

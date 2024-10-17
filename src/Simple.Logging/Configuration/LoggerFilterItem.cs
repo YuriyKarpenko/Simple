@@ -2,74 +2,46 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Simple.Logging.Messages;
-
 namespace Simple.Logging.Configuration
 {
-    /// <summary>
-    /// Defines a rule used to filter log messages
-    /// </summary>
+    /// <summary> Defines a rule used to filter log messages </summary>
     public class LoggerFilterItem
     {
-        public static LoggerFilterItem Default = new LoggerFilterItem(null);
-
-        private readonly IDictionary<string, LogLevel> _rules = new Dictionary<string, LogLevel>(StringComparer.OrdinalIgnoreCase);
-
-
-        public LoggerFilterItem(IDictionary<string, LogLevel>? rules)
+        private readonly IDictionary<string, LogLevel> _rules;
+        public LoggerFilterItem(IDictionary<string, LogLevel>? rules, LogLevel minLevel = LogLevel.Error)
         {
-            if (rules?.Any() == true)
-            {
-                _rules = rules;
+            _rules = rules?.Any() == true
+                ? new Dictionary<string, LogLevel>(rules, StringComparer.OrdinalIgnoreCase)
+                : new Dictionary<string, LogLevel>(StringComparer.OrdinalIgnoreCase);
 
-                MinLevel = _rules.TryGetValue(string.Empty, out var level)
-                    ? level
-                    : _rules.Values.Min();
-            }
+            MinLevel = _rules.TryGetValue(string.Empty, out var level)
+                ? level
+                : minLevel;
         }
 
         public LogLevel MinLevel { get; set; }
 
 
-        public Match[] GetRules(string fullName)
+        public LoggerFilterItem AddRule(string nameSpace, LogLevel level)
         {
-            var values = _rules
-                .Where(i => fullName.StartsWith(i.Key, StringComparison.OrdinalIgnoreCase))
-                .Select(i => new Match(i.Key, i.Value))
-                .ToArray();
-
-            return values;
-        }
-
-        public bool Filter(ILogMessage message)
-        {
-            var fullName = message.LogSource;
-            var matches = GetRules(fullName);
-            var level = FilterMatces(matches);
-            return message.Level >= level;
-        }
-
-        public LogLevel FilterMatces(Match[] matches)
-        {
-            return matches.Count() switch
+            if (string.IsNullOrWhiteSpace(nameSpace))
             {
-                0 => MinLevel,
-                1 => matches[0].Level,
-                _ => matches.Aggregate((v, a) => v.Length > a.Length ? v : a).Level
-            };
-        }
-
-
-        public class Match //: IComparable<Match>
-        {
-            public Match(string key, LogLevel level)
-            {
-                Length = key.Length;
-                Level = level;
+                MinLevel = level;
             }
+            else
+            {
+                _rules[nameSpace] = level;
+            }
+            return this;
+        }
 
-            public int Length { get; }
-            public LogLevel Level { get; }
+        public bool Filter(LogLevel level, string logSource)
+        {
+            if (level >= MinLevel)
+            {
+                return true;
+            }
+            return _rules.Any(i => level >= i.Value && logSource.StartsWith(i.Key, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
