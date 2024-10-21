@@ -1,7 +1,5 @@
 using Simple.DI;
 
-using Xunit;
-
 namespace Test.DI
 {
     public class ResolverTests

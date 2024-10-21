@@ -1,14 +1,25 @@
 # Simple.Logging
 
-Pierian spring:
-https://github.com/reactiveui/splat
-and using like a Splat.Locator, but has litle different names
 
 ##	Using
 ```cs
+using Simple.Logging;
+	...
+	LogManager.Option.SetMinLevel(LogLevel.Info).AddDebug().AddConsole();
+	...
+	private readonly ILogger _logger;
+	public ClassCtor(IServiceProvider sp)
+	{
+		_logger = sp.CreateLogger<ClassCtor>();
+		// OR
+		// _logger = sp.CreateLogger(typeof(ClassCtor));
+	}
+	...
 ```
 
 ##  Release notes
+0.1.3
+	refactoring to easily reflect config.json to logger options
 0.1.2
 	Append:
 		implement scope

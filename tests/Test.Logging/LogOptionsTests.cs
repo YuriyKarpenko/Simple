@@ -1,4 +1,6 @@
-﻿using Simple.Helpers;
+﻿using Newtonsoft.Json.Linq;
+
+using Simple.Helpers;
 using Simple.Logging.Configuration;
 
 namespace Test.Logging;
@@ -58,5 +60,42 @@ public class LogOptionsTests
 
         //  assert
         Assert.Equal(expected, actual);
+    }
+
+    [Theory]
+    [InlineData(@"{
+        ""Debug"": {
+            ""LogLevel"": {
+                ""Microsoft.Extensions.Hosting"": ""Info"",
+                ""Simple.DI"": ""Debug"", 
+                ""Default"": ""Warning"" 
+            },
+        },
+        ""LogLevel"": {
+            ""Microsoft.Extensions.Hosting"": ""Info"",
+            ""Simple.DI"": ""Trace"", 
+            ""Default"": ""Trace"" 
+        },
+        ""Console"": {
+            ""LogLevel"": {
+                ""Microsoft.Extensions.Hosting"": ""Info"",
+                ""Simple.DI"": ""Debug"", 
+                ""Default"": ""Warning"" 
+            },
+            ""IncludeScope"": ""false""
+        }
+    }", 2, LogLevel.Trace)]
+    public void Json(string json, int expectedCount, LogLevel expectedDefault)
+    {
+        //  arrange
+        svc.Clear();
+        var jo = JObject.Parse(json);
+
+        //  test
+        svc.Populate(jo);
+
+        //  assert
+        Assert.Equal(expectedDefault, svc.LogLevel.Default);
+        Assert.Equal(expectedCount, svc.Count);
     }
 }

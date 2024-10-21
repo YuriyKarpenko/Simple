@@ -1,7 +1,5 @@
 ﻿using Simple.Ttl;
 
-using Xunit;
-
 namespace Test.Ttl
 {
     public class TtlDictionaryTests
@@ -65,7 +63,7 @@ namespace Test.Ttl
             async Task<int> factory(string s)
             {
                 await Task.Delay(100);
-                return  ++expected;
+                return ++expected;
             }
 
             //  test
