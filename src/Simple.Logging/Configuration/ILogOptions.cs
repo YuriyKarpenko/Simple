@@ -3,7 +3,7 @@
     public interface ILogOptions
     {
         /// <summary> Common filter </summary>
-        LoggerFilterItem Default { get; }
+        LoggerFilterItem LogLevel { get; }
 
         /// <summary> Can process the log-message with <paramref name="level"/> and <paramref name="logSource"/> /> </summary>
         /// <returns>Can we process this message</returns>
@@ -11,6 +11,6 @@
 
         LogOptionItem EnsureOptionItem(string observerName);
 
-        void SetFilterItem(string observerName, LoggerFilterItem filterItem);
+        //void SetFilterItem(string observerName, LoggerFilterItem filterItem);
     }
 }

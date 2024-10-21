@@ -3,5 +3,5 @@
 namespace Simple.Logging.Configuration;
 public abstract class ConfigObserverBase
 {
-    public abstract void ApplyOptions(Dictionary<string, string> options);
+    public abstract void ApplyOptions(IDictionary<string, string> options);
 }

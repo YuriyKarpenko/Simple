@@ -10,8 +10,8 @@ public class LogManager
 {
     public static LogLevel DefaultMinLevel
     {
-        get => Options.Default.MinLevel;
-        set => Options.Default.MinLevel = value;
+        get => Options.LogLevel.Default;
+        set => Options.LogLevel.Default = value;
     }
 
     public static ILoggerFactory LoggerFactory { get; set; } = new DefaultLoggerFactory();

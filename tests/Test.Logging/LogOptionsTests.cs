@@ -1,4 +1,5 @@
-﻿using Simple.Logging.Configuration;
+﻿using Simple.Helpers;
+using Simple.Logging.Configuration;
 
 namespace Test.Logging;
 public class LogOptionsTests
@@ -24,14 +25,14 @@ public class LogOptionsTests
     public void SetFilterItem(string observerName, LogLevel level)
     {
         //  arrangr
-        var fi = new LoggerFilterItem(null, level);
+        var fi = new LoggerFilterItem(level);
 
         //  test
         svc.SetFilterItem(observerName, fi);
 
         //  assert
         Assert.True(svc.ContainsKey(observerName));
-        Assert.Equal(fi, svc[observerName].FilterItem);
+        Assert.Equal(fi, svc[observerName].LogLevel);
     }
 
     [Theory]
@@ -47,8 +48,10 @@ public class LogOptionsTests
     {
         //  arrangr
         LoggerFilterItemTests.TestRules.Remove(string.Empty);
-        svc.SetFilterItem("some observer name", new LoggerFilterItem(LoggerFilterItemTests.TestRules));
-        svc.Default.MinLevel = LogLevel.Critical;
+        var fi = new LoggerFilterItem();
+        fi.Merge(LoggerFilterItemTests.TestRules);
+        svc.SetFilterItem("some observer name", fi);
+        svc.LogLevel.Default = LogLevel.Critical;
 
         //  test
         var actual = svc.FilterIn(level, loggerName);

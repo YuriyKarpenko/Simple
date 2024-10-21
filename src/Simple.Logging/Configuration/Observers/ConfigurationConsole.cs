@@ -34,7 +34,7 @@ namespace Simple.Logging.Configuration
         public IDictionary<LogLevel, ConsoleColor> ForeColors { get; set; }
 
 
-        public override void ApplyOptions(Dictionary<string, string> options)
+        public override void ApplyOptions(IDictionary<string, string> options)
         {
             DisableColors = options.TryGetValue(nameof(DisableColors), out var sD) && bool.Parse(sD);
             IncludeScopes = options.TryGetValue(nameof(IncludeScopes), out var sI) && bool.Parse(sI);

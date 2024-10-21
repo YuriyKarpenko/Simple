@@ -1,47 +1,46 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Simple.Logging.Configuration
 {
     /// <summary> Defines a rule used to filter log messages </summary>
-    public class LoggerFilterItem
+    public class LoggerFilterItem : DictionaryString<LogLevel>
     {
-        private readonly IDictionary<string, LogLevel> _rules;
-        public LoggerFilterItem(IDictionary<string, LogLevel>? rules, LogLevel minLevel = LogLevel.Error)
+        public LoggerFilterItem(LogLevel minLevel = LogLevel.Error)
         {
-            _rules = rules?.Any() == true
-                ? new Dictionary<string, LogLevel>(rules, StringComparer.OrdinalIgnoreCase)
-                : new Dictionary<string, LogLevel>(StringComparer.OrdinalIgnoreCase);
-
-            MinLevel = _rules.TryGetValue(string.Empty, out var level)
-                ? level
-                : minLevel;
+            Default = minLevel;
         }
 
-        public LogLevel MinLevel { get; set; }
+        public LogLevel Default { get; set; }
 
 
-        public LoggerFilterItem AddRule(string nameSpace, LogLevel level)
+        public override LogLevel this[string nameSpace]
         {
-            if (string.IsNullOrWhiteSpace(nameSpace))
+            get => IsDefault(nameSpace) ? Default : _inner[nameSpace];
+            set
             {
-                MinLevel = level;
+                if (IsDefault(nameSpace))
+                {
+                    Default = value;
+                }
+                else
+                {
+                    _inner[nameSpace] = value;
+                }
             }
-            else
-            {
-                _rules[nameSpace] = level;
-            }
-            return this;
         }
 
         public bool Filter(LogLevel level, string logSource)
         {
-            if (level >= MinLevel)
+            if (level >= Default)
             {
                 return true;
             }
-            return _rules.Any(i => level >= i.Value && logSource.StartsWith(i.Key, StringComparison.OrdinalIgnoreCase));
+            return _inner.Any(i => level >= i.Value && logSource.StartsWith(i.Key, StringComparison.OrdinalIgnoreCase));
         }
+
+
+        private static bool IsDefault(string nameSpace)
+            => string.IsNullOrWhiteSpace(nameSpace) || nameof(Default).Equals(nameSpace, StringComparison.InvariantCultureIgnoreCase);
     }
 }
