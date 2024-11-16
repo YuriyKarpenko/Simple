@@ -1,7 +1,5 @@
 using Simple.Ttl;
 
-using Xunit;
-
 namespace Test.Ttl
 {
     public class TtlValueTests

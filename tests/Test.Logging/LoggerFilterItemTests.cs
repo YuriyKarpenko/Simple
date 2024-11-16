@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Simple.Helpers;
 using Simple.Logging.Configuration;
-using Simple.Logging.Messages;
 
 namespace Test.Logging
 {
@@ -21,6 +21,9 @@ namespace Test.Logging
             { $"{NsRoot}", LogLevel.None },
             { string.Empty, LogLevel.Warning },     //  custom default
         };
+
+
+        private readonly LoggerFilterItem svc = new LoggerFilterItem();
 
 
         [Theory]
@@ -46,14 +49,13 @@ namespace Test.Logging
             }
 
             //  test
-            var actual = new LoggerFilterItem(rules);
+            svc.Merge(rules);
 
             //  assert
-            Assert.Equal(expected, actual.MinLevel);
+            Assert.Equal(expected, svc.Default);
         }
 
 
-        private readonly LoggerFilterItem svc = new LoggerFilterItem(TestRules);
         [Theory]
         [InlineData(NsRoot + ".Ns_0.Ns_1.Ns_2.Ns_3.Ns_4.Ns_5.ClassName", LogLevel.Trace, true)]
         [InlineData(NsRoot + ".Ns_0.Ns_1.Ns_2.Ns_3.Ns_4.Ns_5.ClassName", LogLevel.Debug, true)]
@@ -68,11 +70,27 @@ namespace Test.Logging
         [InlineData(NsRoot + ".Ns_0.Ns_1.Ns_2.ClassName", LogLevel.Info, false)]
         public void Filter(string fullName, LogLevel level, bool expected)
         {
+            //  arrange
+            svc.Merge(TestRules);
+
             //  test
             var actual = svc.Filter(level, fullName);
 
             //  assert
             Assert.Equal(expected, actual);
+        }
+
+        [Theory]
+        [InlineData("{ \"Microsoft.Extensions.Hosting\": \"Warning\", \"Default\": \"Info\" }", 1, LogLevel.Info)]
+        [InlineData("{ \"Simple.Logging\": \"Info\", \"Simple.DI\": \"Info\", \"Default\": \"Warning\" }", 2, LogLevel.Warning)]
+        public void Json(string json, int expectedCount, LogLevel expectedDefault)
+        {
+            //  test
+            Newtonsoft.Json.JsonConvert.PopulateObject(json, svc);
+
+            //  assert
+            Assert.Equal(expectedDefault, svc.Default);
+            Assert.Equal(expectedCount, svc.Count);
         }
     }
 }

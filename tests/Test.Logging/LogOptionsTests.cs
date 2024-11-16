@@ -1,4 +1,7 @@
-﻿using Simple.Logging.Configuration;
+﻿using Newtonsoft.Json.Linq;
+
+using Simple.Helpers;
+using Simple.Logging.Configuration;
 
 namespace Test.Logging;
 public class LogOptionsTests
@@ -24,14 +27,14 @@ public class LogOptionsTests
     public void SetFilterItem(string observerName, LogLevel level)
     {
         //  arrangr
-        var fi = new LoggerFilterItem(null, level);
+        var fi = new LoggerFilterItem(level);
 
         //  test
         svc.SetFilterItem(observerName, fi);
 
         //  assert
         Assert.True(svc.ContainsKey(observerName));
-        Assert.Equal(fi, svc[observerName].FilterItem);
+        Assert.Equal(fi, svc[observerName].LogLevel);
     }
 
     [Theory]
@@ -47,13 +50,52 @@ public class LogOptionsTests
     {
         //  arrangr
         LoggerFilterItemTests.TestRules.Remove(string.Empty);
-        svc.SetFilterItem("some observer name", new LoggerFilterItem(LoggerFilterItemTests.TestRules));
-        svc.Default.MinLevel = LogLevel.Critical;
+        var fi = new LoggerFilterItem();
+        fi.Merge(LoggerFilterItemTests.TestRules);
+        svc.SetFilterItem("some observer name", fi);
+        svc.LogLevel.Default = LogLevel.Critical;
 
         //  test
         var actual = svc.FilterIn(level, loggerName);
 
         //  assert
         Assert.Equal(expected, actual);
+    }
+
+    [Theory]
+    [InlineData(@"{
+        ""Debug"": {
+            ""LogLevel"": {
+                ""Microsoft.Extensions.Hosting"": ""Info"",
+                ""Simple.DI"": ""Debug"", 
+                ""Default"": ""Warning"" 
+            },
+        },
+        ""LogLevel"": {
+            ""Microsoft.Extensions.Hosting"": ""Info"",
+            ""Simple.DI"": ""Trace"", 
+            ""Default"": ""Trace"" 
+        },
+        ""Console"": {
+            ""LogLevel"": {
+                ""Microsoft.Extensions.Hosting"": ""Info"",
+                ""Simple.DI"": ""Debug"", 
+                ""Default"": ""Warning"" 
+            },
+            ""IncludeScope"": ""false""
+        }
+    }", 2, LogLevel.Trace)]
+    public void Json(string json, int expectedCount, LogLevel expectedDefault)
+    {
+        //  arrange
+        svc.Clear();
+        var jo = JObject.Parse(json);
+
+        //  test
+        svc.Populate(jo);
+
+        //  assert
+        Assert.Equal(expectedDefault, svc.LogLevel.Default);
+        Assert.Equal(expectedCount, svc.Count);
     }
 }

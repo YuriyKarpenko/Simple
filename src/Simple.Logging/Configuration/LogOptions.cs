@@ -1,33 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Simple.Logging.Configuration
 {
-    public class LogOptions : Dictionary<string, LogOptionItem>, ILogOptions
+    public class LogOptions : DictionaryString<LogOptionItem>, ILogOptions
     {
         public static readonly LogOptions Instance = new();
 
-        private LogOptions() : base(StringComparer.OrdinalIgnoreCase)
+        private LogOptions()
         {
-            Default = new LoggerFilterItem(null);
+            LogLevel = new LoggerFilterItem();
         }
 
-        public LoggerFilterItem Default { get; set; }
+        public LoggerFilterItem LogLevel { get; set; }
 
 
 
         public bool FilterIn(LogLevel level, string logSource)
         {
-            return Default.Filter(level, logSource) ||
-                Values.Any(option => option.FilterItem.Filter(level, logSource));
+            return LogLevel.Filter(level, logSource) ||
+                Values.Any(option => option.LogLevel.Filter(level, logSource));
         }
 
         public LogOptionItem EnsureOptionItem(string observerName)
         {
             if (!TryGetValue(observerName, out var optionItem))
             {
-                this[observerName] = optionItem = new LogOptionItem(Default.MinLevel);
+                this[observerName] = optionItem = new LogOptionItem(LogLevel.Default);
             }
             return optionItem;
         }
@@ -36,7 +34,7 @@ namespace Simple.Logging.Configuration
         {
             Throw.IsArgumentNullException(observerName, nameof(observerName));
             Throw.IsArgumentNullException(filterItem, nameof(filterItem));
-            EnsureOptionItem(observerName).FilterItem = filterItem;
+            EnsureOptionItem(observerName).LogLevel = filterItem;
         }
     }
 

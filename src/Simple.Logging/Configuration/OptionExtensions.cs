@@ -37,7 +37,7 @@ namespace Simple.Logging
 
         public static ILogOptions SetMinLevel(this ILogOptions o, LogLevel level)
         {
-            o.Default.MinLevel = level;
+            o.LogLevel.Default = level;
             return o;
         }
     }
