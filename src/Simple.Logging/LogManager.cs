@@ -20,7 +20,7 @@ public class LogManager
 
     public static ILogMessageFactory MessageFactory { get; set; } = new DefaultLogMessageFactory();
 
-    public static IScopeProvider ScopeProvider { get; set; } = new DefaultScopeProvider();
+    public static IExternalScopeProvider ScopeProvider { get; set; } = new DefaultScopeProvider();
 
     //  filtering helpers
     public static Func<LogLevel, string, bool> FilterIn => Options.FilterIn;

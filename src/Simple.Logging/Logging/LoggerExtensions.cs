@@ -1,61 +1,42 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Simple.Logging
+namespace Simple.Logging;
+
+public static class LoggerExtensions
 {
-    public static class LoggerExtensions
+    public static void CriticalMethod(this ILogger logger, Exception ex, Func<string?> getArgs, Func<string?>? getMethodResult = null, [CallerMemberName] string? methodName = null)
+        => LogMethod(logger, LogLevel.Critical, getArgs, getMethodResult, ex, methodName);
+
+    public static void ErrorMethod(this ILogger logger, Exception ex, Func<string?> getArgs, Func<string?>? getMethodResult = null, [CallerMemberName] string? methodName = null)
+        => LogMethod(logger, LogLevel.Error, getArgs, getMethodResult, ex, methodName);
+
+    public static void WarningMethod(this ILogger logger, Exception? ex, Func<string?> getArgs, Func<string?>? getMethodResult = null, [CallerMemberName] string? methodName = null)
+        => LogMethod(logger, LogLevel.Warning, getArgs, getMethodResult, ex, methodName);
+
+    public static void InfoMethod(this ILogger logger, Func<string?> getArgs, Func<string?>? getMethodResult = null, [CallerMemberName] string? methodName = null)
+        => LogMethod(logger, LogLevel.Information, getArgs, getMethodResult, null, methodName);
+
+    public static void DebugMethod(this ILogger logger, Func<string?> getArgs, Func<string?>? getMethodResult = null, [CallerMemberName] string? methodName = null)
+        => LogMethod(logger, LogLevel.Debug, getArgs, getMethodResult, null, methodName);
+
+    public static void TraceMethod(this ILogger logger, Func<string?> getArgs, Func<string?>? getMethodResult = null, [CallerMemberName] string? methodName = null)
+        => LogMethod(logger, LogLevel.Trace, getArgs, getMethodResult, null, methodName);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void LogMethod(this ILogger logger, LogLevel level, Func<string?> getArgs, Func<string?>? getMethodResult = null, Exception? ex = null, [CallerMemberName] string? methodName = null)
     {
-        public static void Trace(this ILogger logger, string message, Exception? exception = null)
-            => logger.Log(LogLevel.Trace, message, exception);
-
-        public static void Debug(this ILogger logger, string message, Exception? exception = null)
-            => logger.Log(LogLevel.Debug, message, exception);
-
-        public static void Info(this ILogger logger, string message, Exception? exception = null)
-            => logger.Log(LogLevel.Info, message, exception);
-
-        public static void Warn(this ILogger logger, string message, Exception? exception = null)
-            => logger.Log(LogLevel.Warning, message, exception);
-
-        public static void Error(this ILogger logger, string message, Exception? exception)
-            => logger.Log(LogLevel.Error, message, exception);
-        public static void Error(this ILogger logger, Exception exception, string message)
-            => logger.Log(LogLevel.Error, message, exception);
-
-        public static void Critical(this ILogger logger, string message, Exception? exception = null)
-            => logger.Log(LogLevel.Critical, message, exception);
-
-
-        public static void CriticalMethod(this ILogger logger, Exception ex, Func<string?> getArgs, Func<string?>? getMethodResult = null, [CallerMemberName] string? methodName = null)
-            => Log(logger, LogLevel.Critical, LogMessageMethod(getArgs, getMethodResult, methodName), ex);
-
-        public static void ErrorMethod(this ILogger logger, Exception ex, Func<string?> getArgs, Func<string?>? getMethodResult = null, [CallerMemberName] string? methodName = null)
-            => Log(logger, LogLevel.Error, LogMessageMethod(getArgs, getMethodResult, methodName), ex);
-
-        public static void WarningMethod(this ILogger logger, Exception? ex, Func<string?> getArgs, Func<string?>? getMethodResult = null, [CallerMemberName] string? methodName = null)
-            => Log(logger, LogLevel.Warning, LogMessageMethod(getArgs, getMethodResult, methodName), ex);
-
-        public static void InfoMethod(this ILogger logger, Func<string?> getArgs, Func<string?>? getMethodResult = null, [CallerMemberName] string? methodName = null)
-            => Log(logger, LogLevel.Info, LogMessageMethod(getArgs, getMethodResult, methodName));
-
-        public static void DebugMethod(this ILogger logger, Func<string?> getArgs, Func<string?>? getMethodResult = null, [CallerMemberName] string? methodName = null)
-            => Log(logger, LogLevel.Debug, LogMessageMethod(getArgs, getMethodResult, methodName));
-
-        public static void TraceMethod(this ILogger logger, Func<string?> getArgs, Func<string?>? getMethodResult = null, [CallerMemberName] string? methodName = null)
-            => Log(logger, LogLevel.Trace, LogMessageMethod(getArgs, getMethodResult, methodName));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Log(this ILogger logger, LogLevel level, Func<string?> getMessage, Exception? ex = null)
+        if (logger.IsEnabled(level))
         {
-            if (logger.IsEnabled(level))
-            {
-                logger.Log(level, getMessage(), ex, null);
-            }
+            logger.Log(level, 0, (methodName, args: getArgs(), getMethodResult), ex, static (state, _) =>
+                state.getMethodResult is null
+                    ? string.Format(msgFormat_2, state.methodName, state.args)
+                    : string.Format(msgFormat_3, state.methodName, state.args, state.getMethodResult())
+                    );
         }
-
-        /// <summary> make message as $"{methodName}({methodArgs}) {methodResult}" </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Func<string> LogMessageMethod(Func<string?> methodArgs, Func<string?>? methodResult = null, [CallerMemberName] string? methodName = null)
-            => () => $"{methodName}({methodArgs()}){methodResult?.Invoke()}";
     }
+
+    private const string
+        msgFormat_2 = "{0}({1})",
+        msgFormat_3 = "{0}({1}) => {2}";
 }
