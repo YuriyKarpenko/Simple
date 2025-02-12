@@ -4,9 +4,9 @@ using System.Diagnostics;
 namespace Simple.Logging.Messages;
 
 [DebuggerDisplay("{Level,-9} {State} [{LogSource}]")]
-public struct ILogMessage
+public readonly struct LogMessage
 {
-    public ILogMessage(string logSource, LogLevel level, string? message, Exception? exception)
+    public LogMessage(string logSource, LogLevel level, string? message, Exception? exception)
     {
         Created = DateTime.UtcNow;
         Level = level;

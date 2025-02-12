@@ -81,8 +81,8 @@ namespace Test.Logging
         }
 
         [Theory]
-        [InlineData("{ \"Microsoft.Extensions.Hosting\": \"Warning\", \"Default\": \"Info\" }", 1, LogLevel.Information)]
-        [InlineData("{ \"Simple.Logging\": \"Info\", \"Simple.DI\": \"Info\", \"Default\": \"Warning\" }", 2, LogLevel.Warning)]
+        [InlineData("{ \"Microsoft.Extensions.Hosting\": \"Warning\", \"Default\": \"Information\" }", 1, LogLevel.Information)]
+        [InlineData("{ \"Simple.Logging\": \"Information\", \"Simple.DI\": \"Information\", \"Default\": \"Warning\" }", 2, LogLevel.Warning)]
         public void Json(string json, int expectedCount, LogLevel expectedDefault)
         {
             //  test

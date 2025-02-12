@@ -66,19 +66,19 @@ public class LogOptionsTests
     [InlineData(@"{
         ""Debug"": {
             ""LogLevel"": {
-                ""Microsoft.Extensions.Hosting"": ""Info"",
+                ""Microsoft.Extensions.Hosting"": ""Information"",
                 ""Simple.DI"": ""Debug"", 
                 ""Default"": ""Warning"" 
             },
         },
         ""LogLevel"": {
-            ""Microsoft.Extensions.Hosting"": ""Info"",
+            ""Microsoft.Extensions.Hosting"": ""Information"",
             ""Simple.DI"": ""Trace"", 
             ""Default"": ""Trace"" 
         },
         ""Console"": {
             ""LogLevel"": {
-                ""Microsoft.Extensions.Hosting"": ""Info"",
+                ""Microsoft.Extensions.Hosting"": ""Information"",
                 ""Simple.DI"": ""Debug"", 
                 ""Default"": ""Warning"" 
             },

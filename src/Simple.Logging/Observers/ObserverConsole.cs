@@ -20,7 +20,7 @@ public class ObserverConsole : ObserverBase<ObserverConsole>
 
     public ConfigurationConsole Configuration { get; }
 
-    protected override void Write(ILogMessage e)
+    protected override void Write(LogMessage e)
     {
         //lock (this)
         {
@@ -34,7 +34,7 @@ public class ObserverConsole : ObserverBase<ObserverConsole>
 
     private void WriteLevel(TextWriter tw, LogLevel level)
     {
-        var value = $"{level,-9}";
+        var value = $"{level.ToShortName(),-9}";
         if (Configuration.DisableColors)
         {
             tw.Write(value);

@@ -6,9 +6,11 @@ namespace Simple.Logging;
 
 public class Logger : ILogger
 {
+    protected readonly ILogMessageBus<LogMessage> _messageBus;
     protected readonly string _logSource;
-    public Logger(string logSource)
+    public Logger(string logSource, ILogMessageBus<LogMessage> messageBus)
     {
+        _messageBus = messageBus;
         _logSource = logSource;
     }
 
@@ -24,7 +26,7 @@ public class Logger : ILogger
         if (IsEnabled(logLevel))
         {
             var e = LogManager.MessageFactory.CreateMessage(_logSource, logLevel, state, exception, formatter);
-            SendMessage(e);
+            _messageBus.Push(e);
         }
     }
 
@@ -33,8 +35,4 @@ public class Logger : ILogger
         => LogManager.ScopeProvider.Push(state);
 
     #endregion
-
-
-    protected virtual void SendMessage(ILogMessage message)
-        => Logging.LoggingBus.Instance.Push(message);
 }
