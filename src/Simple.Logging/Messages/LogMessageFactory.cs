@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Simple.Logging.Messages;
 
-public class DefaultLogMessageFactory : ILogMessageFactory
+public class LogMessageFactory : ILogMessageFactory
 {
-    public ILogMessage CreateMessage<TState>(string logSource, LogLevel level, TState state, Exception? exception, Func<TState, Exception?, string>? formatter)
+    public LogMessage CreateMessage<TState>(string logSource, LogLevel level, TState state, Exception? exception, Func<TState, Exception?, string>? formatter)
     {
         formatter ??= DefaultFormatMessage;
         var msg = formatter(state, exception);
-        return new ILogMessage(logSource, level, msg, exception);
+        return new LogMessage(logSource, level, msg, exception);
     }
 
     public static string DefaultFormatMessage<TState>(TState? state, Exception? exception)
@@ -25,7 +25,7 @@ public class DefaultLogMessageFactory : ILogMessageFactory
         return CreateScopes(list);
     }
 
-    public string CreateScopes(List<object?> scopes)
+    private static string CreateScopes(List<object?> scopes)
         => scopes.Count switch
         {
             0 => string.Empty,
@@ -33,7 +33,7 @@ public class DefaultLogMessageFactory : ILogMessageFactory
             _ => $"[{scopes.AsString(" => ")}]\n\t"
         };
 
-    public string ToStringWithoutLevel(ILogMessage message)
+    public string ToStringWithoutLevel(LogMessage message)
     {
         var idx = message.LogSource.LastIndexOf('.');
         var name = idx > 0 ? message.LogSource.Substring(idx + 1) : message.LogSource;

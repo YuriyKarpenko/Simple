@@ -36,6 +36,19 @@ public static class LoggerExtensions
         }
     }
 
+    public static string ToShortName(this LogLevel level)
+        => level switch
+        {
+            LogLevel.Critical => "Critic",
+            LogLevel.Debug => "Debug",
+            LogLevel.Error => "Error",
+            LogLevel.Information => "Info",
+            LogLevel.None => "None",
+            LogLevel.Trace => "Trace",
+            LogLevel.Warning => "Warn",
+            _ => Throw.Exception<string>(new ArgumentOutOfRangeException($"{level}"))
+        };
+
     private const string
         msgFormat_2 = "{0}({1})",
         msgFormat_3 = "{0}({1}) => {2}";

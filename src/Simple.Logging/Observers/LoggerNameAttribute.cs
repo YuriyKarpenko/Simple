@@ -1,15 +1,14 @@
 ﻿using System;
 
-namespace Simple.Logging.Observers
-{
-    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    public class LoggerNameAttribute : Attribute
-    {
-        public LoggerNameAttribute(string name)
-        {
-            Name = Throw.IsArgumentNullException(name, nameof(name));
-        }
+namespace Simple.Logging.Observers;
 
-        public string Name { get; }
+[AttributeUsage(AttributeTargets.Class, Inherited = true)]
+public class LoggerNameAttribute : Attribute
+{
+    public LoggerNameAttribute(string name)
+    {
+        Name = Throw.IsArgumentNullException(name, nameof(name));
     }
+
+    public string Name { get; }
 }

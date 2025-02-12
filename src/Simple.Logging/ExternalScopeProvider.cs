@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Simple.Logging.Scope;
+namespace Simple.Logging;
 
-public class DefaultScopeProvider : IExternalScopeProvider
+public class ExternalScopeProvider : IExternalScopeProvider
 {
     private readonly AsyncLocal<Scope?> _currentScope = new AsyncLocal<Scope?>();
 
@@ -45,10 +45,10 @@ public class DefaultScopeProvider : IExternalScopeProvider
 
     private sealed class Scope : IDisposable
     {
-        private readonly DefaultScopeProvider _provider;
+        private readonly ExternalScopeProvider _provider;
         private bool _isDisposed;
 
-        internal Scope(DefaultScopeProvider provider, object state, Scope? parent)
+        internal Scope(ExternalScopeProvider provider, object state, Scope? parent)
         {
             _provider = provider;
             State = state;
