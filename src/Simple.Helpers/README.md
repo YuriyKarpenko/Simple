@@ -31,6 +31,18 @@ some other extensions
 
 ##  Release notes
 
+0.1.1
+	append:
+		support netstandard2.1
+		DicString
+		Option (ala Rust)
+		RandomGenerator
+		StrUtil
+		some unit-tests
+	update:
+		CollectionExtensions (Merge IReadOnlyDictionary)
+		small fixes (in ExtensionsHex, HashCodeCombiner)
+
 0.1.0.3
 	update(fixed):
 		added Throw.IsArgumentNullException override (for netstandard2.0)

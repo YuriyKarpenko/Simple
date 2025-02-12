@@ -3,7 +3,7 @@
     <PropertyGroup>    
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0</TargetFrameworks>
         <PackageOutputPath>..\..\Release\$(MSBuildProjectName)\</PackageOutputPath>
     
         <Authors>mail@yk.cc.ua</Authors>

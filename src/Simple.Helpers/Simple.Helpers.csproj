@@ -1,11 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <!--    package     -->
-        <Description>Static throw helper + HashCoceCombiner class (from MS) + some extensions</Description>
-        <PackageTags>Simple;helpers;Stream helper</PackageTags>
-        <Title>Simple helper classes</Title>
-        <Version>0.1.0.3</Version>
-    </PropertyGroup>
+	<PropertyGroup>
+		<!--    package     -->
+		<Description>Static throw helper + HashCoceCombiner class (from MS) + some extensions + Option (as in Rust)</Description>
+		<PackageTags>Simple;helpers;Stream helper</PackageTags>
+		<Title>Simple helper classes</Title>
+		<AssemblyVersion>0.1.1.4</AssemblyVersion>
+		<Version>0.1.1</Version>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+		<PackageReference Include="System.Memory" Version="4.6.0" />
+	</ItemGroup>
 
 </Project>
