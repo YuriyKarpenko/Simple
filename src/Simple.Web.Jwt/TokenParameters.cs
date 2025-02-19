@@ -91,6 +91,30 @@ public class TokenParameters
 public static class ParametersExtensions
 {
     //  Decode
+
+    public static IOption<IJwtValidator> OptValidator(this TokenParameters _parameters)
+    {
+        Throw.IsArgumentNullException(_parameters, nameof(_parameters));
+
+        return _parameters.Validate(out var error)
+            ? Option.Value(new JwtValidator(_parameters))
+            : Option.Error<IJwtValidator>(error);
+    }
+
+    public static IOption<IJwtPayload> OptValidateToken(this TokenParameters _parameters, string token)
+    {
+        return OptValidator(_parameters)
+            .Join(JwtParts.OptParse(token, _parameters.UrlEncoder), (v, p) =>
+            {
+                var error = v.Validate(p);
+                return error is null
+                    ? Option.Value(p.EnsurePayload(_parameters.JsonSerializer))
+                    : Option.Error<IJwtPayload>(error);
+            });
+    }
+
+
+
     public static bool TryCreateValidator(this TokenParameters _parameters, out IJwtValidator jwtValidator, out string? error)
     {
         Throw.IsArgumentNullException(_parameters, nameof(_parameters));
@@ -120,6 +144,26 @@ public static class ParametersExtensions
     }
 
     //  Encode
+    public static IOption<IJwtEncoder> OptEncoder(this TokenParameters _parameters)
+    {
+        Throw.IsArgumentNullException(_parameters, nameof(_parameters));
+
+        return _parameters.Validate(out var error)
+            ? Option.Value(new JwtEncoder(_parameters.Algorithm!, _parameters.JsonSerializer, _parameters.UrlEncoder))
+            : Option.Error<IJwtEncoder>(error);
+    }
+
+    public static IOption<string> OptToken(this TokenParameters _parameters, IDictionary<string, object>? claims)
+    {
+        return OptEncoder(_parameters)
+            .Then(en =>
+            {
+                var payload = MergePayload(_parameters, claims);
+                return en.OptEncode(payload, _parameters.SigningKey);
+            });
+    }
+
+
     public static bool TryCreateEncoder(this TokenParameters _parameters, out IJwtEncoder encoder, out string? error)
     {
         _parameters = Throw.IsArgumentNullException(_parameters, nameof(_parameters));

@@ -1,5 +1,6 @@
 ﻿using System.Text;
 
+using Simple.Helpers;
 using Simple.Web.Jwt;
 using Simple.Web.Jwt.Algorithms;
 
@@ -13,6 +14,23 @@ public class JwtEncoderTests : BaseTests
         Algorithm = new HmacSha256();
     }
 
+
+    [Theory]
+    [InlineData("1")]
+    public void OptEncode(string field)
+    {
+        //  Arrange
+        Payload.SetClaim("custom field", field);
+        var key = Encoding.ASCII.GetBytes(KeyStr);
+        var tokenExpected = s_svc.Encode(null, Payload, key);
+
+        //  test
+        var o = this.OptEncoder().Then(i => i.OptEncode(Payload, key));
+
+        //  assert
+        Assert.True(o.HasValue);
+        Assert.Equal(tokenExpected, o.Value);
+    }
 
     [Theory]
     [InlineData("1")]

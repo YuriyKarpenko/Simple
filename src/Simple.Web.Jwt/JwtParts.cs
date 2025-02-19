@@ -5,6 +5,26 @@
 /// </summary>
 public class JwtParts
 {
+    public static IOption<JwtParts> OptParse(string token, IBase64UrlEncoder base64UrlEncoder)
+    {
+        var oJwt = Option.String(token)
+            .Validate(StrUtil.NotEmpty)
+            .ThenValue(i => i.Split('.'))
+            .Validate(i => i.Length == 3, JwtErrors.ErrorTokenParse)
+            .Validate(ss => StrUtil.NotEmpty(ss[0]), JwtErrors.ErrorArgumentIsInvalid("Header"))
+            .Validate(ss => StrUtil.NotEmpty(ss[1]), JwtErrors.ErrorArgumentIsInvalid("Payload"))
+            .ThenTryValue(ss =>
+            {
+                var oHeader = base64UrlEncoder.OptDecode(ss[0]).ThenValue(Utf8Utils.GetString);
+                var oPayload = base64UrlEncoder.OptDecode(ss[1]).ThenValue(Utf8Utils.GetString);
+                var oSign = base64UrlEncoder.OptDecode(ss[2]);   //  can be empty
+                var bytesToSign = Utf8Utils.GetBytesToSign(ss[0], ss[1]);
+                return new JwtParts(bytesToSign, oHeader.Value, oPayload.Value, oSign.Value);
+            });
+
+        return oJwt;
+    }
+
     public static bool TryParse(string token, IBase64UrlEncoder base64UrlEncoder, out JwtParts jwtParts, out string? e)
     {
         Throw.IsArgumentNullException(token, StrUtil.NotEmpty, nameof(token));
