@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿//global using IJwtPayload = System.Collections.Generic.IDictionary<string, object>;
+
+using System.Globalization;
 
 using System.Linq;
 namespace Simple.Web.Jwt;

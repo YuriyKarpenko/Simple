@@ -29,4 +29,7 @@ public static class Utf8Utils
 
     public static string GetString(byte[] input)
         => _utf8.GetString(input);
+
+    public static IOption<R> ThenValue<T, R>(this IOption<T> o, Func<T, R> select)
+        => o.Then(i => Option.Value(select(o.Value)));
 }

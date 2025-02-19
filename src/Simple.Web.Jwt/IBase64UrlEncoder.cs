@@ -4,6 +4,13 @@ namespace Simple.Web.Jwt;
 public interface IBase64UrlEncoder
 {
     /// <summary> Encodes the byte array to a base64 string. </summary>
+    IOption<string> OptEncode(byte[] input);
+
+    /// <summary> Decodes the base64 string to a byte array. </summary>
+    IOption<byte[]> OptDecode(string input);
+
+
+    /// <summary> Encodes the byte array to a base64 string. </summary>
     bool TryEncode(byte[] input, out string output, out string? error);
 
     /// <summary> Decodes the base64 string to a byte array. </summary>
@@ -13,6 +20,26 @@ public interface IBase64UrlEncoder
 //  TODO: use Span
 public class Base64UrlEncoder : IBase64UrlEncoder
 {
+
+    /// <inheritdoc />
+    /// <exception cref="ArgumentNullException" />
+    public IOption<string> OptEncode(byte[] input)
+    {
+        return Option.Value(input)
+            .Validate(i => i.Length > 0, JwtErrors.ErrorArgumentIsInvalid(nameof(input)))
+            .ThenTryValue(EncodeNew);
+    }
+
+    /// <inheritdoc />
+    /// <exception cref="ArgumentNullException" />
+    /// <exception cref="FormatException" />
+    public IOption<byte[]> OptDecode(string input)
+    {
+        return Option.Value(input)
+            .Validate(StrUtil.NotEmpty, JwtErrors.ErrorArgumentIsInvalid(nameof(input)))
+            .ThenTryValue(DecodeNew);
+    }
+
     /// <inheritdoc />
     /// <exception cref="ArgumentNullException" />
     public bool TryEncode(byte[] input, out string output, out string? error)
