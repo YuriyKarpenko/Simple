@@ -3,64 +3,64 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Simple.Helpers
+namespace Simple.Helpers;
+
+public static class Throw
 {
-    public static class Throw
+    /// <summary> Allows easy check the parameters </summary>
+    /// <param name="value">Checking parameter</param>
+    /// <param name="paramName">Parameters name for <see cref="ArgumentNullException"/></param>
+    /// <param name="isValid">Addon test for paramrter</param>
+    /// <returns>Valid value</returns>
+#if NET5_0_OR_GREATER
+    public static T IsArgumentNullException<T>([NotNull] T? value, Predicate<T>? isValid, [CallerArgumentExpression(nameof(value))] string? paramName = null)
     {
-        /// <summary> Allows easy check the parameters </summary>
-        /// <param name="value">Checking parameter</param>
-        /// <param name="paramName">Parameters name for <see cref="ArgumentNullException"/></param>
-        /// <param name="isValid">Addon test for paramrter</param>
-        /// <returns>Valid value</returns>
-#if NET6_0_OR_GREATER
-        public static T IsArgumentNullException<T>([NotNull] T? value, Predicate<T>? isValid, [CallerArgumentExpression(nameof(value))] string? paramName = null)
+        ArgumentNullException.ThrowIfNull(value, paramName);
+        if (isValid?.Invoke(value) == false)
         {
-            ArgumentNullException.ThrowIfNull(value, paramName);
-            if (isValid?.Invoke(value) == false)
-            {
-                ArgumentException(paramName!);
-            }
-            return value;
+            ArgumentException(paramName!);
         }
-        public static T IsArgumentNullException<T>([NotNull] T? value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
-        {
-            ArgumentNullException.ThrowIfNull(value, paramName);
-            return value;
-        }
+        return value;
+    }
+
+    public static T IsArgumentNullException<T>([NotNull] T? value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
+    {
+        ArgumentNullException.ThrowIfNull(value, paramName);
+        return value;
+    }
 #else
-        public static T IsArgumentNullException<T>(T? value, string paramName)
+    public static T IsArgumentNullException<T>(T? value, string paramName)
+    {
+        if (value == null)
         {
-            if (value == null)
-            {
-                Exception(new ArgumentNullException(paramName));
-            }
-
-            return value!;
+            Exception(new ArgumentNullException(paramName));
         }
 
-        public static T IsArgumentNullException<T>(T? value, Predicate<T>? isValid, string paramName)
+        return value!;
+    }
+
+    public static T IsArgumentNullException<T>(T? value, Predicate<T>? isValid, string paramName)
+    {
+        IsArgumentNullException(value, paramName);
+
+        if (isValid?.Invoke(value!) == false)
         {
-            IsArgumentNullException(value, paramName);
-
-            if (isValid?.Invoke(value!) == false)
-            {
-                ArgumentException(paramName!);
-            }
-
-            return value!;
+            ArgumentException(paramName!);
         }
+
+        return value!;
+    }
 #endif
 
-        /// <summary> Create and fire a <see cref="System.ArgumentException"/> </summary>
-        /// <param name="paramName"></param>
-        public static void ArgumentException(string paramName)
-            => Exception(new ArgumentException(paramName));
+    /// <summary> Create and fire a <see cref="System.ArgumentException"/> </summary>
+    /// <param name="paramName"></param>
+    public static void ArgumentException(string paramName)
+        => Exception(new ArgumentException(paramName));
 
-        public static void Exception(Exception ex)
-            => throw ex;
-        public static T Exception<T>(Exception ex)
-            => throw ex;
-        public static Task<T> ExceptionAsync<T>(Exception ex)
-            => Task.FromException<T>(ex);
-    }
+    public static void Exception(Exception ex)
+        => throw ex;
+    public static T Exception<T>(Exception ex)
+        => throw ex;
+    public static Task<T> ExceptionAsync<T>(Exception ex)
+        => Task.FromException<T>(ex);
 }

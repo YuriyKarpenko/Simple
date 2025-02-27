@@ -4,61 +4,58 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Simple.Helpers
+namespace Simple.Helpers;
+
+/// <summary> Extensions for <see cref="Stream"/> </summary>
+public static class StreamExtensions
 {
-    /// <summary> Extensions for <see cref="MemoryStream"/> </summary>
-    public static class StreamExtensions
+    public static async Task<string?> ReadToEndAsync(this Stream? stream)
     {
-        public static async Task<string?> ReadToEndAsync(this Stream stream)
+        Throw.IsArgumentNullException(stream, nameof(stream));
+
+        if (stream?.CanRead != true)
         {
-            Throw.IsArgumentNullException(stream, nameof(stream));
-
-            if (stream?.CanRead != true)
-            {
-                return null;
-            }
-
-            if (stream.CanSeek)
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-            }
-
-            using (var reader = new StreamReader(stream, Encoding.UTF8, true, 1024, false))
-            {
-                return await reader.ReadToEndAsync();
-            }
+            return null;
         }
 
-        /// <summary> Gets the buffer segment. </summary>
-        /// <param name="stream">The memory stream.</param>
-        /// <returns>Buffer segment as bytes</returns>
-        public static ArraySegment<byte> GetBufferSegment(this MemoryStream stream)
+        if (stream.CanSeek)
         {
-            return stream.TryGetBuffer(out var buffer)
-                ? buffer
-                : default;
+            stream.Seek(0, SeekOrigin.Begin);
         }
 
-        public static Task WriteAsync(this Stream stream, byte[] data, CancellationToken cancellationToken = default)
+        using (var reader = new StreamReader(stream, Encoding.UTF8, true, 1024, false))
         {
-            Throw.IsArgumentNullException(stream, i => i.CanWrite, nameof(stream));
-
-            return stream.WriteAsync(data, 0, data.Length, cancellationToken);
+            return await reader.ReadToEndAsync();
         }
-        public static async Task<int> WriteAsync(this Stream stream, string content, Encoding encoding, CancellationToken cancellationToken = default)
-        {
-            if (string.IsNullOrEmpty(content))
-            {
-                return 0;
-            }
-
-            Throw.IsArgumentNullException(encoding, nameof(encoding));
-
-            var data = encoding.GetBytes(content);
-            await stream.WriteAsync(data, cancellationToken);
-            return data.Length;
-        }
-        public static Task<int> WriteAsync(this Stream stream, string content, CancellationToken cancellationToken = default)
-            => WriteAsync(stream, content, Encoding.UTF8, cancellationToken);
     }
+
+    [Obsolete]
+    public static ArraySegment<byte> GetBufferSegment(this MemoryStream stream)
+    {
+        return stream.TryGetBuffer(out var buffer)
+            ? buffer
+            : default;
+    }
+
+    public static Task WriteAsync(this Stream stream, byte[] data, CancellationToken cancellationToken = default)
+    {
+        Throw.IsArgumentNullException(stream, i => i.CanWrite, nameof(stream));
+
+        return stream.WriteAsync(data, 0, data.Length, cancellationToken);
+    }
+    public static async Task<int> WriteAsync(this Stream stream, string content, Encoding encoding, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(content))
+        {
+            return 0;
+        }
+
+        Throw.IsArgumentNullException(encoding, nameof(encoding));
+
+        var data = encoding.GetBytes(content);
+        await WriteAsync(stream, data, cancellationToken);
+        return data.Length;
+    }
+    public static Task<int> WriteAsync(this Stream stream, string content, CancellationToken cancellationToken = default)
+        => WriteAsync(stream, content, Encoding.UTF8, cancellationToken);
 }
