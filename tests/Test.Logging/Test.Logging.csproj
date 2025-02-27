@@ -5,7 +5,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Using Include="Simple.Logging"/>
+		<Using Include="Microsoft.Extensions.Logging" />
+		<Using Include="Simple.Logging" />
     </ItemGroup>
 
 </Project>

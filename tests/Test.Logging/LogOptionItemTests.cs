@@ -11,7 +11,7 @@ public class LogOptionItemTests
     [Theory]
     [InlineData(@"{
         ""LogLevel"": {
-            ""Microsoft.Extensions.Hosting"": ""Info"",
+            ""Microsoft.Extensions.Hosting"": ""Information"",
             ""Simple.DI"": ""Debug"", 
             ""Default"": ""Warning"" 
         },
