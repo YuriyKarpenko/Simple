@@ -34,36 +34,6 @@ public class CollectionTests
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void MergeReadOnly(bool isOverrideKeys)
-    {
-        //  arrange
-        var d1 = new DicString<int>
-        {
-            { "1", 1 },
-            { "2", 2 },
-        };
-        IReadOnlyDictionary<string, int> d2 = new DicString<int>
-        {
-            { "2", 4 },
-            { "3", 3 },
-        };
-        var expected = new DicString<int>
-        {
-            { "1", 1 },
-            { "2", isOverrideKeys ? 4 : 2 },
-            { "3", 3 },
-        };
-
-        //  test
-        var actual = d1.Merge(d2, isOverrideKeys);
-
-        //  assert
-        Assert.Equal(expected, actual);
-    }
-
-    [Theory]
     [InlineData(null)]
     [InlineData(44)]
     public void TryGet(int? expected)

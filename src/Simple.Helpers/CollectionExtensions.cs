@@ -86,36 +86,16 @@ public static class CollectionExtensions
     /// <param name="overrideValues">Source to update</param>
     /// <param name="isOverrideKeys">Is override value if key exists in <paramref name="dst"/></param>
     /// <returns>Updated <paramref name="dst"/></returns>
-    public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> dst, IDictionary<TKey, TValue> overrideValues, bool isOverrideKeys = true)
+    public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> dst, IEnumerable<KeyValuePair<TKey, TValue>> overrideValues, bool isOverrideKeys = true)
     {
-        foreach (var key in overrideValues.Keys)
+        foreach (var ov in overrideValues)
         {
-            if (isOverrideKeys || !dst.ContainsKey(key))
+            if (isOverrideKeys || !dst.ContainsKey(ov.Key))
             {
-                dst[key] = overrideValues[key];
+                dst[ov.Key] = ov.Value;
             }
         }
         return dst;
-    }
-    /// <summary>
-    /// Fill <paramref name="dest"/> by key and values from <paramref name="overrideValues"/> if key not exists in <paramref name="dest"/> or <paramref name="isOverrideKeys"/> == true
-    /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
-    /// <param name="dest">dictionary to update</param>
-    /// <param name="overrideValues">Source to update</param>
-    /// <param name="isOverrideKeys">Is override value if key exists in <paramref name="dest"/></param>
-    /// <returns>Updated <paramref name="dest"/></returns>
-    public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> dest, IReadOnlyDictionary<TKey, TValue> overrideValues, bool isOverrideKeys = true)
-    {
-        foreach (var key in overrideValues.Keys)
-        {
-            if (isOverrideKeys || !dest.ContainsKey(key))
-            {
-                dest[key] = overrideValues[key];
-            }
-        }
-        return dest;
     }
 
     public static bool TryGet<TKey, TValue, R>(this IDictionary<TKey, TValue> d, TKey key, out R result)
