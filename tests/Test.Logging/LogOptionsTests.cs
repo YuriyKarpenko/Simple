@@ -44,7 +44,7 @@ public class LogOptionsTests
     [InlineData(LoggerFilterItemTests.NsRoot + ".Ns_0.Ns_1.Ns_2.Ns_3", LogLevel.Error, true)]//  current = Info     : observer.Default = Error
     [InlineData(LoggerFilterItemTests.NsRoot + ".Ns_0.Ns_1", LogLevel.Warning, false)]      //  current = Error     : current > Warning
     [InlineData(LoggerFilterItemTests.NsRoot + ".Ns_0.Ns_1.Ns_2", LogLevel.Warning, true)]  //  current = Warning   : current <= Warning
-    [InlineData(LoggerFilterItemTests.NsRoot + ".Ns_0.Ns_1.Ns_2", LogLevel.Info, false)]    //  current = Warning
+    [InlineData(LoggerFilterItemTests.NsRoot + ".Ns_0.Ns_1.Ns_2", LogLevel.Information, false)]    //  current = Warning
     //[MemberData()]
     public void FilterIn(string loggerName, LogLevel level, bool expected)
     {

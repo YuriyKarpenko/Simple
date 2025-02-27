@@ -32,11 +32,7 @@ namespace Simple.Logging.Configuration
 
         public bool Filter(LogLevel level, string logSource)
         {
-            if (level >= Default)
-            {
-                return true;
-            }
-            return _inner.Any(i => level >= i.Value && logSource.StartsWith(i.Key, StringComparison.OrdinalIgnoreCase));
+            return level >= Default ? true : _inner.Any(i => level >= i.Value && logSource.StartsWith(i.Key, StringComparison.OrdinalIgnoreCase));
         }
 
 

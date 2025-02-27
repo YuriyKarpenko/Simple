@@ -1,7 +1,7 @@
 ﻿using System;
 
 using Simple.Logging.Configuration;
-using Simple.Logging.Logging;
+using Simple.Logging.Messages;
 using Simple.Logging.Observers;
 
 namespace Simple.Logging
@@ -31,7 +31,7 @@ namespace Simple.Logging
 
         public static ILogOptions AddObserver(this ILogOptions o, ILogObserver observer)
         {
-            LoggingBus.Instance.Subscribe(observer);
+            LogMessageBus.Instance.Subscribe(observer);
             return o;
         }
 

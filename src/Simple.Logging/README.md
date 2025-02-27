@@ -18,6 +18,13 @@ using Simple.Logging;
 ```
 
 ##  Release notes
+0.1.4
+	Append:
+		use 'Microsoft.Extensions.Logging' (remove some our intrfaces and enum)
+	Update:
+		LoggerExtensions
+		some name-spaces
+		some **Factory names
 0.1.3
 	refactoring to easily reflect config.json to logger options
 0.1.2

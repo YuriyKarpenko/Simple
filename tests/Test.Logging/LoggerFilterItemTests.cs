@@ -14,7 +14,7 @@ namespace Test.Logging
         {
             { $"{NsRoot}.{Ns[0]}.{Ns[1]}.{Ns[2]}.{Ns[3]}.{Ns[4]}.{Ns[5]}", LogLevel.Trace },
             { $"{NsRoot}.{Ns[0]}.{Ns[1]}.{Ns[2]}.{Ns[3]}.{Ns[4]}", LogLevel.Debug },
-            { $"{NsRoot}.{Ns[0]}.{Ns[1]}.{Ns[2]}.{Ns[3]}", LogLevel.Info },
+            { $"{NsRoot}.{Ns[0]}.{Ns[1]}.{Ns[2]}.{Ns[3]}", LogLevel.Information },
             { $"{NsRoot}.{Ns[0]}.{Ns[1]}.{Ns[2]}", LogLevel.Warning },
             { $"{NsRoot}.{Ns[0]}.{Ns[1]}", LogLevel.Error },
             { $"{NsRoot}.{Ns[0]}", LogLevel.Critical },
@@ -29,7 +29,7 @@ namespace Test.Logging
         [Theory]
         [InlineData(LogLevel.Trace)]
         [InlineData(LogLevel.Debug)]
-        [InlineData(LogLevel.Info)]
+        [InlineData(LogLevel.Information)]
         [InlineData(LogLevel.Warning)]
         [InlineData(LogLevel.Error)]
         [InlineData(LogLevel.Critical)]
@@ -63,11 +63,11 @@ namespace Test.Logging
         [InlineData(NsRoot + ".Ns_0.Ns_1.Ns_2.Ns_3.Ns_4.ClassName", LogLevel.Debug, true)]
         [InlineData(NsRoot + ".Ns_0.Ns_1.Ns_2.Ns_3.ClassName", LogLevel.Trace, false)]
         [InlineData(NsRoot + ".Ns_0.Ns_1.Ns_2.Ns_3.ClassName", LogLevel.Debug, false)]
-        [InlineData(NsRoot + ".Ns_0.Ns_1.Ns_2.Ns_3.ClassName", LogLevel.Info, true)]
+        [InlineData(NsRoot + ".Ns_0.Ns_1.Ns_2.Ns_3.ClassName", LogLevel.Information, true)]
         //  Allows by .Level >= MinLevel
         [InlineData(NsRoot + ".Ns_0.Ns_1.Ns_2.ClassName", LogLevel.Trace, false)]
         [InlineData(NsRoot + ".Ns_0.Ns_1.Ns_2.ClassName", LogLevel.Debug, false)]
-        [InlineData(NsRoot + ".Ns_0.Ns_1.Ns_2.ClassName", LogLevel.Info, false)]
+        [InlineData(NsRoot + ".Ns_0.Ns_1.Ns_2.ClassName", LogLevel.Information, false)]
         public void Filter(string fullName, LogLevel level, bool expected)
         {
             //  arrange
@@ -81,7 +81,7 @@ namespace Test.Logging
         }
 
         [Theory]
-        [InlineData("{ \"Microsoft.Extensions.Hosting\": \"Warning\", \"Default\": \"Info\" }", 1, LogLevel.Info)]
+        [InlineData("{ \"Microsoft.Extensions.Hosting\": \"Warning\", \"Default\": \"Info\" }", 1, LogLevel.Information)]
         [InlineData("{ \"Simple.Logging\": \"Info\", \"Simple.DI\": \"Info\", \"Default\": \"Warning\" }", 2, LogLevel.Warning)]
         public void Json(string json, int expectedCount, LogLevel expectedDefault)
         {
