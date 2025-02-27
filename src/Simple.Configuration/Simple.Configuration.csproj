@@ -1,16 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <!--    package     -->
-        <Description>Simple configure project from JSON and environment, which used like a MS</Description>
-        <PackageTags>Simple;configuration;json configuration</PackageTags>
-        <Title>Simple configure project</Title>
-        <Version>0.1.0.0</Version>
-    </PropertyGroup>
+	<PropertyGroup>
+		<!--    package     -->
+		<Description>Simple configure project from JSON and environment, which used like a MS</Description>
+		<PackageTags>Simple;configuration;json configuration</PackageTags>
+		<Title>Simple configure project</Title>
+		<AssemblyVersion>0.1.0.2</AssemblyVersion>
+		<Version>0.1.0</Version>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="Simple.Helpers" Version="0.1.0.3" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Simple.Helpers" Version="0.1.1" />
+	</ItemGroup>
 
 </Project>
