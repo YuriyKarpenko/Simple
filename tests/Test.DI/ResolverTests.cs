@@ -1,79 +1,116 @@
 using Simple.DI;
 
-namespace Test.DI
+namespace Test.DI;
+
+public class ResolverTests
 {
-    public class ResolverTests
+    private const string Key = "test Key";
+    private readonly Resolver<string> _svc = new Resolver<string>(null);
+    private readonly Func<object> _facttory = () => Key;
+
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    public void RegisterOverride(uint regCount)
     {
-        private const string key = "test key";
-        private readonly Resolver<string> _svc;
-        public ResolverTests()
+        //  arrange
+        while (regCount-- > 0)
         {
-            _svc = new Svc();
+            _svc.Register(Key, () => $"{Key} {regCount}");
         }
+        _svc.Register(Key, _facttory);
 
+        //  test
+        TestAssert(Key, Key);
+    }
 
-        [Theory]
-        [InlineData(0)]
-        [InlineData(3)]
-        [InlineData(8)]
-        public void Register(int regCount)
+    [Fact]
+    public void RegisterScoped()
+    {
+        const string Key2 = "test Key 2";
+
+        using (var _1 = _svc.CreateScope())
         {
-            //  arrange
-            Func<object> fact = () => key;
+            //  arrange 1
+            _svc.RegisterScoped(Key, _facttory);
 
-            //  tst
-            while (regCount-- > 0)
+            //  test 1
+            TestAssert(Key, Key, true);
+
+            //  test 2
+            TestAssert(null, Key2, true);
+
+            using (var _2 = _svc.CreateScope())
             {
-                _svc.Register(key, () => $"{key} {regCount}");
-            }
-            _svc.Register(key, fact);
-            var actual = _svc.GetService(key);
+                //  arrange 2
+                _svc.RegisterScoped(Key2, () => Key2);
 
-            //  assert
-            Assert.Equal(key, actual);
-        }
+                //  test 2
+                TestAssert(Key2, Key2, true);
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void TryRegister(bool expected)
-        {
-            //  assert
-            Func<object> facttory = () => key;
-            if (!expected)
-            {
-                _svc.TryRegister(key, facttory);
+                //  test 1
+                TestAssert(Key, Key, true);
             }
 
-            //  test
-            var actual = _svc.TryRegister(key, facttory);
+            //  test 1
+            TestAssert(Key, Key, true);
 
-            //  assert
-            Assert.Equal(expected, actual);
+            //  test 2
+            TestAssert(null, Key2, true);
         }
 
-        [Fact]
-        public void Multithtead()
+        //  test
+        TestAssert(null, Key);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void TryRegister(bool expected)
+    {
+        //  assert
+        if (!expected)
         {
-            //  arrange
-            var rnd = new Random();
-            var keys = Enumerable.Range(0, 100).Select(i => $"key {i}").ToList();
-
-            //  test
-            var tasks = keys.Select(i => Task.Run(() =>
-            {
-                Thread.Sleep(rnd.Next(100));
-                _svc.Register(i, () => i);
-            }));
-            Task.WhenAll(tasks).Wait();
-
-            //  assert
-            keys.ForEach(i => Assert.Equal(i, _svc.GetService(i)));
+            Assert.True(_svc.TryRegister(Key, _facttory));
         }
 
-        private class Svc : Resolver<string>
+        //  test
+        var actual = _svc.TryRegister(Key, _facttory);
+
+        //  assert
+        Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public async Task MultithteadAsync()
+    {
+        //  arrange
+        var keys = Enumerable.Range(0, 100).Select(i => $"Key {i}").ToList();
+
+        //  test
+        var tasks = keys.Select(i => Task.Run(() => _svc.Register(i, () => i)));
+        await Task.WhenAll(tasks);
+
+        //  assert
+        keys.ForEach(i => TestAssert(i, i));
+    }
+
+
+    private void TestAssert(object? expected, string key, bool isScoped = false)
+    {
+        //  test
+        var actual = _svc.GetService(key);
+
+        //  assert
+        Assert.Equal(expected, actual);
+        if (isScoped)
         {
-            public Svc() : base(null) { }
+            Assert.NotEqual(_svc, _svc.ResolverScoped);
+        }
+        else
+        {
+            Assert.Equal(_svc, _svc.ResolverScoped);
         }
     }
 }
