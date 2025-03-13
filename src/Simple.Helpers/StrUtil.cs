@@ -1,15 +1,25 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Simple.Helpers;
 
 public static class StrUtil
 {
+    //  validation
+
     /// <summary> for simple using in linq delegates. </summary>
-    public static bool NotEmpty(string? value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool NotEmpty(
+#if !NETSTANDARD2_0
+        [NotNullWhen(true)] 
+#endif
+    this string? value)
         => !string.IsNullOrWhiteSpace(value);
 
-    //  extensions
+    //  utils
 
     /// <summary> GetBytes using <paramref name="encoding"/>, default Encoding.UTF8. </summary>
     /// <param name="value">Source string</param>
@@ -27,5 +37,19 @@ public static class StrUtil
                 ? value.Substring(0, (int)maxLen)
                 : $"{value.Substring(0, (int)maxLen - 4)} ...";
 
+    public static string GetClassName(this Type t)
+    {
+        if (t.IsGenericType)
+        {
+            var suffix = t.GenericTypeArguments.Select(GetClassName).AsString();
+            var a = t.Name.AsSpan();
+            var end = a.IndexOf('`');
 
+            return end > 0
+                ? $"{new string(a.ToArray(), 0, end)}<{suffix}>"
+                : $"{t.Name}<{suffix}>";
+        }
+
+        return t.Name;
+    }
 }

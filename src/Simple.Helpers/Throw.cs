@@ -12,7 +12,7 @@ public static class Throw
     /// <param name="paramName">Parameters name for <see cref="ArgumentNullException"/></param>
     /// <param name="isValid">Addon test for paramrter</param>
     /// <returns>Valid value</returns>
-#if NET5_0_OR_GREATER
+#if !NETSTANDARD
     public static T IsArgumentNullException<T>([NotNull] T? value, Predicate<T>? isValid, [CallerArgumentExpression(nameof(value))] string? paramName = null)
     {
         ArgumentNullException.ThrowIfNull(value, paramName);
@@ -29,26 +29,23 @@ public static class Throw
         return value;
     }
 #else
-    public static T IsArgumentNullException<T>(T? value, string paramName)
-    {
-        if (value == null)
-        {
-            Exception(new ArgumentNullException(paramName));
-        }
-
-        return value!;
-    }
-
     public static T IsArgumentNullException<T>(T? value, Predicate<T>? isValid, string paramName)
     {
-        IsArgumentNullException(value, paramName);
+        value = IsArgumentNullException(value, paramName);
 
-        if (isValid?.Invoke(value!) == false)
+        if (isValid?.Invoke(value) == false)
         {
-            ArgumentException(paramName!);
+            ArgumentException(paramName);
         }
 
-        return value!;
+        return value;
+    }
+
+    public static T IsArgumentNullException<T>(T? value, string paramName)
+    {
+        value ??= Exception<T>(new ArgumentNullException(paramName));
+
+        return value;
     }
 #endif
 

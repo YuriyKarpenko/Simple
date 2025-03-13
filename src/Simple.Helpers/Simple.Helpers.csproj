@@ -1,12 +1,73 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<!--    package     -->
 		<Description>Static throw helper + HashCoceCombiner class (from MS) + some extensions + Option (as in Rust)</Description>
 		<PackageTags>Simple;helpers;Stream helper</PackageTags>
 		<Title>Simple helper classes</Title>
-		<AssemblyVersion>0.1.1.4</AssemblyVersion>
-		<Version>0.1.1</Version>
+
+		<AssemblyVersion>8.0.0.5</AssemblyVersion>
+		<Version>8.0.0</Version>
+		<PackageReleaseNotes>
+			8.0.0.5
+			append:
+			<p>
+				support net8.0
+				StrUtil.GetClassName()
+				class ExtensionsValidation
+				some methods in ExtensionsHex
+				some unit-tests
+			</p>
+			update:
+			<p>
+				refactoring CollectionExtensions class
+				refactoring Throw class
+			</p>
+			0.1.1.4
+			append:
+			<p>
+				support netstandard2.1
+				DicString
+				Option (ala Rust)
+				RandomGenerator
+				StrUtil
+				some unit-tests
+			</p>
+			update:
+			<p>
+				CollectionExtensions (Merge IReadOnlyDictionary)
+				small fixes (in ExtensionsHex, HashCodeCombiner)
+			</p>
+
+			0.1.0.3
+			update(fixed):
+			<p>
+				added Throw.IsArgumentNullException override (for netstandard2.0)
+				rename Extensions => ExtensionsHex + refactoring ToHexString()
+			</p>
+
+			0.1.0.2
+			append:
+			<p>
+				Stream.WriteAsync()
+				Extensions (hex convert, IServiceProvider)
+				Throw.Exception as functions
+			</p>
+			update:
+			<p>
+				added Throw.IsArgumentNullException override
+			</p>
+
+			0.1.0.1
+			append:
+			<p>
+				TargetFramework: net6.0
+			</p>
+			update:
+			<p>
+				IsArgumentNullException() can be raice 2 exeptios (ArgumentNullException + ArgumentException)
+			</p>
+
+		</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
