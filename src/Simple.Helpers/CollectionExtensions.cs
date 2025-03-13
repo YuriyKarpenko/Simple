@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Simple.Helpers;
 
@@ -13,8 +15,9 @@ public static class CollectionExtensions
     /// <summary>
     /// Returns value if <paramref name="key"/> exists and value is <typeparamref name="T"/> or <code default/>
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T? GetOrDefault<T>(this IDictionary<string, object> source, string key)
-        => source.TryGetValue(key, out var value) && value is T t ? t : default;
+        => source.TryGetValue(key, out var value) && value is T t ? t : default(T);
 
     public static string AsString<T>(this IEnumerable<T> souce, string separator = ", ")
         => string.Join(separator, souce);
@@ -26,7 +29,7 @@ public static class CollectionExtensions
     /// <returns>A <see cref="NameValueCollection"/> instance.</returns>
     public static NameValueCollection ToNameValueCollection(this IDictionary<string, IEnumerable<string>> source)
     {
-        var collection = new NameValueCollection();
+        var collection = new NameValueCollection(source.Count);
 
         foreach (var key in source.Keys)
         {
@@ -98,7 +101,11 @@ public static class CollectionExtensions
         return dst;
     }
 
-    public static bool TryGet<TKey, TValue, R>(this IDictionary<TKey, TValue> d, TKey key, out R result)
+    public static bool TryGet<TKey, TValue, R>(this IDictionary<TKey, TValue> d, TKey key,
+#if !NETSTANDARD2_0
+        [MaybeNullWhen(false)]
+#endif
+        out R result)
     {
         if (d.TryGetValue(key, out var o) && o is R r)
         {
@@ -110,7 +117,11 @@ public static class CollectionExtensions
         return false;
     }
 
-    public static bool TryGet<TKey, TValue, R>(this IReadOnlyDictionary<TKey, TValue> d, TKey key, out R result)
+    public static bool TryGet<TKey, TValue, R>(this IReadOnlyDictionary<TKey, TValue> d, TKey key,
+#if !NETSTANDARD2_0
+        [MaybeNullWhen(false)]
+#endif
+        out R result)
     {
         if (d.TryGetValue(key, out var o) && o is R r)
         {

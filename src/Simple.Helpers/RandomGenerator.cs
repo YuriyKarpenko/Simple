@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
 namespace Simple.Helpers;
@@ -17,23 +18,29 @@ public static class RandomGenerator
 
     public static Random Random = new Random(DateTimeOffset.Now.Second);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Fill(byte[] data)
         => Random.NextBytes(data);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int GetInt(int fromInclusive, int toExclusive)
         => Random.Next(fromInclusive, toExclusive);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int GetInt(int toExclusive)
         => Random.Next(toExclusive);
 
 #else
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Fill(Span<byte> data)
         => RandomNumberGenerator.Fill(data);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int GetInt(int fromInclusive, int toExclusive)
         => RandomNumberGenerator.GetInt32(fromInclusive, toExclusive);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int GetInt(int toExclusive)
         => RandomNumberGenerator.GetInt32(toExclusive);
 
@@ -97,8 +104,11 @@ public static class RandomGenerator
             (a[i], a[j]) = (a[j], a[i]);
         }
     }
+    public static void Shuffle<T>(this Memory<T> a)
+        => Shuffle(a.Span);
 
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void CheckEmpty<T>(ReadOnlySpan<T> choices)
     {
         if (choices.IsEmpty)
