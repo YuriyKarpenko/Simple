@@ -29,15 +29,16 @@ public class LogMessageFactory : ILogMessageFactory
         => scopes.Count switch
         {
             0 => string.Empty,
-            1 => scopes[0]?.ToString() ?? string.Empty,
+            1 => $"[{scopes[0]}] : ",
             _ => $"[{scopes.AsString(" => ")}]\n\t"
         };
 
-    public string ToStringWithoutLevel(LogMessage message)
+    public string ToStringWithoutLevel(LogMessage message, bool includeScopes)
     {
         var idx = message.LogSource.LastIndexOf('.');
         var name = idx > 0 ? message.LogSource.Substring(idx + 1) : message.LogSource;
+        var scopes = includeScopes ? CreateScopes() : string.Empty;
 
-        return $"- {message.Created,-10:T}: {name,-10} : {message.State}\n";
+        return $"- {message.Created,-9:T}: {scopes}{name,-10} : {message.State}\n";
     }
 }
