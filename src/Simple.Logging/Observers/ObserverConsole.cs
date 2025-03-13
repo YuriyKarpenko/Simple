@@ -22,19 +22,18 @@ public class ObserverConsole : ObserverBase<ObserverConsole>
 
     protected override void Write(LogMessage e)
     {
-        //lock (this)
+        lock (this)
         {
-            var scopes = LogManager.MessageFactory.CreateScopes();
-            var text = LogManager.MessageFactory.ToStringWithoutLevel(e);
+            var text = LogManager.MessageFactory.ToStringWithoutLevel(e, Configuration.IncludeScopes);
 
             WriteLevel(Console.Out, e.Level);
-            Console.Out.WriteLine(scopes + text);
+            Console.Out.WriteLine(text);
         }
     }
 
     private void WriteLevel(TextWriter tw, LogLevel level)
     {
-        var value = $"{level.ToShortName(),-9}";
+        var value = $"{level.ToShortName(),-7}";
         if (Configuration.DisableColors)
         {
             tw.Write(value);
