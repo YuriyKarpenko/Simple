@@ -18,6 +18,12 @@ using Simple.Logging;
 ```
 
 ##  Release notes
+8.0.0.5
+	Append:
+		support net8.0
+	Update:
+		LoggerExtensions
+		scopes
 0.1.4
 	Append:
 		use 'Microsoft.Extensions.Logging' (remove some our intrfaces and enum)
