@@ -5,6 +5,12 @@ using Simple.Logging.Observers;
 
 namespace Simple.Logging.Messages;
 
+public interface ILogMessageBus<TLogMessage> : IObservable<TLogMessage>
+{
+    /// <summary> Eter new message for observers </summary>
+    void Push(TLogMessage entry);
+}
+
 public class LogMessageBus : ILogMessageBus<LogMessage>
 {
     public static readonly ILogMessageBus<LogMessage> Instance = new LogMessageBus();
