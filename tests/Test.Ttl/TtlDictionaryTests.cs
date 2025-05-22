@@ -55,37 +55,37 @@ namespace Test.Ttl
             Assert.Equal(1, actual);
         }
 
-        [Fact]
-        public async Task GetOrCreateAsync_Parallel()
+        [Theory]
+        [InlineData(false, 10, 2)]  //  2 и больше (( "прогрев" класса ?
+        [InlineData(false, 20, 1)]
+        [InlineData(true, 10, 1)]
+        [InlineData(true, 200, 1)]
+        public async Task GetOrCreateAsync_Parallel(bool isRunFirs, int iterations, int expected)
         {
             //  arrange
-            var expected = 0;
-            async Task<int> factory(string s)
+            var runCount = 0;
+            async Task<int> factory(string _)
             {
                 await Task.Delay(100);
-                return ++expected;
+                return ++runCount;
             }
 
+            var actions = Enumerable
+                .Range(0, iterations)
+                .Select<int, Action>(_ => async () => await svc.GetOrCreateAsync(Key, factory))
+                .ToArray();
+
             //  test
-            Parallel.Invoke(
-                async () => await svc.GetOrCreateAsync(Key, factory),
-                async () => await svc.GetOrCreateAsync(Key, factory),
-                async () => await svc.GetOrCreateAsync(Key, factory),
-                async () => await svc.GetOrCreateAsync(Key, factory),
-                async () => await svc.GetOrCreateAsync(Key, factory),
-                async () => await svc.GetOrCreateAsync(Key, factory),
-                async () => await svc.GetOrCreateAsync(Key, factory),
-                async () => await svc.GetOrCreateAsync(Key, factory),
-                async () => await svc.GetOrCreateAsync(Key, factory),
-                async () => await svc.GetOrCreateAsync(Key, factory),
-                async () => await svc.GetOrCreateAsync(Key, factory),
-                async () => await svc.GetOrCreateAsync(Key, factory),
-                async () => await svc.GetOrCreateAsync(Key, factory)
-                );
+            if (isRunFirs)
+            {
+                //  "прогрев" класса ((
+                _ = await svc.GetOrCreateAsync(Key, factory);
+            }
+            Parallel.Invoke(actions);
             var actual = await svc.GetOrCreateAsync(Key, factory);
 
             //  assert
-            Assert.Equal(1, actual);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
