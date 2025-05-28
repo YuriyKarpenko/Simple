@@ -1,6 +1,4 @@
-﻿using Simple.Web.Jwt;
-
-namespace Tests.Jwt;
+﻿namespace Tests.Jwt;
 public class BaseTests : TokenParameters
 {
     protected JwtHeader _header = new JwtHeader();

@@ -5,7 +5,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\Simple.Web.Jwt\Simple.Web.Jwt.csproj" />
+		<ProjectReference Include="..\..\src\Simple.Jwt\Simple.Jwt.csproj" />
+
+		<Using Include="Simple.Jwt"/>
 	</ItemGroup>
 
 </Project>
