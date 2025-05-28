@@ -48,14 +48,14 @@ public class TokenParameters
     public bool ValidateIssuer { get; set; }
     public string ValidIssuer
     {
-        get => Payload.TryGet(ClaimName.Issuer, out string v) ? v : string.Empty;
+        get => Payload.TryGet<string, object, string>(ClaimName.Issuer, out var v) ? v : string.Empty;
         set => Payload[ClaimName.Issuer] = value;
     }
 
     public bool ValidateAudience { get; set; }
     public string ValidAudience
     {
-        get => Payload.TryGet(ClaimName.Audience, out string v) ? v : string.Empty;
+        get => Payload.TryGet<string, object, string>(ClaimName.Audience, out var v) ? v : string.Empty;
         set => Payload[ClaimName.Audience] = value;
     }
 

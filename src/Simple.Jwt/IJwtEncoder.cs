@@ -56,7 +56,7 @@ public sealed class JwtEncoder : IJwtEncoder
             return Option.Error<string>(JwtErrors.ErrorArgumentIsNull(nameof(key)));
         }
 
-        var result = Option.Value(payload).NotNull()
+        var result = Option.Value(payload).NotNull("payload")
             .Join(Option.Value(EnsureHeader(_algorithm.Name, extraHeaders)), (p, h) =>
             {
                 return OptEncode(p).Join(OptEncode(h), (payloadSegment, headerSegment) =>

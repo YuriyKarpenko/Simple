@@ -37,7 +37,7 @@ public sealed class JwtValidator : IJwtValidator
     /// <remarks>See https://tools.ietf.org/html/rfc7519#section-4.1.1</remarks>
     public static string? CheckClaimIss(IJwtPayload payloadData, string origValue)
     {
-        return !payloadData.TryGet(ClaimName.Issuer, out string value) || !string.Equals(value, origValue)
+        return !(payloadData.TryGet(ClaimName.Issuer, out string? value) && string.Equals(value, origValue, StringComparison.Ordinal))
             ? JwtErrors.ErrorTimeClaim(ClaimName.Issuer)
             : null;
     }
@@ -46,7 +46,7 @@ public sealed class JwtValidator : IJwtValidator
     /// <remarks>See https://tools.ietf.org/html/rfc7519#section-4.1.3</remarks>
     public static string? CheckClaimAud(IJwtPayload payloadData, string origValue)
     {
-        return !payloadData.TryGet(ClaimName.Audience, out string value) || !string.Equals(value, origValue)
+        return !(payloadData.TryGet(ClaimName.Audience, out string? value) && string.Equals(value, origValue))
             ? JwtErrors.ErrorTimeClaim(ClaimName.Audience)
             : null;
     }

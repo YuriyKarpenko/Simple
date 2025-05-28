@@ -39,7 +39,7 @@ public class NewtonsoftSerializer : IJsonSerializer
     /// <exception cref="ArgumentException" />
     public T Deserialize<T>(string? json)
     {
-        Throw.IsArgumentNullException(json, nameof(json));
+        json ??= Throw.IsArgumentNullException(json, nameof(json));
 
         return JsonConvert.DeserializeObject<T>(json, _serializeOptions)!;
     }

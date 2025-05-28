@@ -8,7 +8,7 @@ public class JwtParts
     public static IOption<JwtParts> OptParse(string token, IBase64UrlEncoder base64UrlEncoder)
     {
         var oJwt = Option.String(token)
-            .Validate(StrUtil.NotEmpty)
+            .Validate(StrUtil.NotEmpty, "token")
             .ThenValue(i => i.Split('.'))
             .Validate(i => i.Length == 3, JwtErrors.ErrorTokenParse)
             .Validate(ss => StrUtil.NotEmpty(ss[0]), JwtErrors.ErrorArgumentIsInvalid("Header"))
