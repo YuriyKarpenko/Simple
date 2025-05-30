@@ -1,4 +1,4 @@
-using Simple.Ttl;
+﻿using Simple.Ttl;
 
 namespace Test.Ttl
 {
@@ -28,7 +28,7 @@ namespace Test.Ttl
         }
 
         [Fact]
-        public async void GetOrCreateAsync()
+        public async Task GetOrCreateAsync()
         {
             //  arange
             var runCount = 0;
@@ -47,32 +47,38 @@ namespace Test.Ttl
             Assert.Equal(2, runCount);
         }
 
-        [Fact]
-        public async void GetOrCreateAsync_Parallel()
+        [Theory]
+        //[InlineData(false, 10, 1)]
+        //[InlineData(false, 20, 1)]
+        [InlineData(true, 10, 1)]
+        [InlineData(true, 200, 1)]
+        public async Task GetOrCreateAsync_Parallel(bool isRunFirs, int iterations, int expected)
         {
             //  arange
             var runCount = 0;
-            //var factory = () => Task.FromResult(++runCount);
             async Task<int> factory()
             {
                 await Task.Delay(100);
                 return ++runCount;
             }
 
+            var actions = Enumerable
+                .Range(0, iterations)
+                .Select<int, Action>(_ => async () => await svc.GetOrCreateAsync(factory))
+                .ToArray();
+
             //  test
-            Parallel.Invoke(
-                async () => await svc.GetOrCreateAsync(factory),
-                async () => await svc.GetOrCreateAsync(factory),
-                async () => await svc.GetOrCreateAsync(factory),
-                async () => await svc.GetOrCreateAsync(factory),
-                async () => await svc.GetOrCreateAsync(factory),
-                async () => await svc.GetOrCreateAsync(factory)
-                );
+            if (isRunFirs)
+            {
+                //  "прогрев" класса ((
+                _ = await svc.GetOrCreateAsync(factory);
+            }
+            Parallel.Invoke(actions);
             var actual = await svc.GetOrCreateAsync(factory);
 
             //  assert
-            Assert.Equal(1, actual);
-            Assert.Equal(1, runCount);
+            Assert.Equal(expected, actual);
+            Assert.Equal(expected, runCount);
         }
 
         [Theory]
@@ -80,7 +86,7 @@ namespace Test.Ttl
         //[InlineData(100, 10, 10)]     //  +1 - corretion with time of executing test (ttl = 0:00:01.0)
         //[InlineData(100, 10, 13)]     //  +1 - corretion with time of executing test (ttl = 0:00:00.5)
         //[InlineData(100, 10, 15)]     //  +1 - corretion with time of executing test (ttl = 0:00:00.2)
-        public void MultithteadCount(int iterations, int parts, int expected)
+        public void MultithreadCount(int iterations, int parts, int expected)
         {
             //  arrange
             var runCount = 0;
@@ -105,7 +111,7 @@ namespace Test.Ttl
         [Theory]
         [InlineData(10, 2, 5)]
         //[InlineData(100, 10, 15)]     //  +1 - corretion with time of executing test
-        public async Task MultithteadCountAsync(int iterations, int parts, int expected)
+        public async Task MultithreadCountAsync(int iterations, int parts, int expected)
         {
             //  arrange
             var runCount = 0;
