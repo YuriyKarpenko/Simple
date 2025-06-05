@@ -43,8 +43,8 @@ public static partial class Option
     public static IOption<T> Error<T>(Exception ex, Func<string?> methodArgs, [CallerMemberName] string? methodName = null)
         => Error<T>(methodArgs, () => $" => {ex.Message}\n{ex}", methodName);
 
-    public static IOption<T> Error<T>(IOption o, [CallerMemberName] string? methodName = null)
-        => Error<T>(o.GetError, null, methodName);
+    public static IOption<T> Error<T>(IOption o)
+        => new Option<T>(o.GetError);
 
     public static IOption<T> Empty<T>(Func<string?>? methodResult = null, [CallerMemberName] string? methodName = null)
         => Error<T>(MsgEmpty, methodResult, methodName);

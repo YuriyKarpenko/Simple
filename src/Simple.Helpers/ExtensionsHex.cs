@@ -12,6 +12,12 @@ public static class ExtensionsHex
     private static readonly char[] Ten = ['A', 'a'];
 
     //  Any extensions
+    public static object GetServiceRequired(this IServiceProvider sp, Type t)
+    {
+        var o = sp.GetService(t);
+        return Throw.IsArgumentNullException(o, t.Name);
+    }
+
     public static T GetServiceRequired<T>(this IServiceProvider sp)
     {
         var o = (T?)sp.GetService(typeof(T));

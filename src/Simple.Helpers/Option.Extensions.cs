@@ -6,30 +6,46 @@ namespace Simple.Helpers;
 public static partial class Option
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IOption<T> NotNull<T>(this IOption<T?> o, [CallerMemberName] string? methodName = null)
-        => o.Then(i => i is null ? Empty<T>(null, methodName) : Value(i!));
+    public static IOption<T> NotNull<T>(this IOption<T?> o, string argName, [CallerMemberName] string? methodName = null)
+        => o.HasValue && o.Value is null ? Error<T>(() => argName, () => MsgEmpty, methodName) : (IOption<T>)o;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IOption<T> NotNull<T>(this IOption<T?> o, [CallerMemberName] string? methodName = null) where T : struct
-        => o.Then(i => i.HasValue ? Value(i.Value) : Empty<T>(null, methodName));
+    public static IOption<T> NotNull<T>(this IOption<T?> o, string argName, [CallerMemberName] string? methodName = null) where T : struct
+        => o.HasValue
+            ? o.Value.HasValue
+                ? Value(o.Value.Value)
+                : Error<T>(() => argName, () => MsgEmpty, methodName)
+            : (IOption<T>)o;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IOption<C> Join<A, B, C>(this IOption<A> a, IOption<B> b, Func<A, B, IOption<C>> action, [CallerMemberName] string? methodName = null)
+    public static IOption<C> Join<A, B, C>(this IOption<A> a, IOption<B> b, Func<A, B, IOption<C>> action)
         => a.HasValue
             ? b.HasValue
                 ? action(a.Value, b.Value)
-                : Error<C>(b, methodName)
-            : Error<C>(a, methodName);
+                : Error<C>(b)
+            : Error<C>(a);
 
     #region Or
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IOption<T> Or<T>(this IOption<T> o, Func<IOption<T>> get)
         => o.HasValue ? o : get();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IOption<T> Or<T>(this IOption<T> o, Func<IOption<T>, IOption<T>> get)
+        => o.HasValue ? o : get(o);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IOption<T> Or<T, T1>(this IOption<T> o, T1 t1, Func<T1, IOption<T>, IOption<T>> get)
+        => o.HasValue ? o : get(t1, o);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Task<IOption<T>> OrAsync<T>(this IOption<T> o, Func<Task<IOption<T>>> getAsync)
         => o.HasValue ? Task.FromResult(o) : getAsync();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Task<IOption<T>> OrAsync<T>(this IOption<T> o, Func<IOption<T>, Task<IOption<T>>> getAsync)
+        => o.HasValue ? Task.FromResult(o) : getAsync(o);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Task<IOption<T>> OrAsync<T, T1>(this IOption<T> o, T1 t1, Func<T1, IOption<T>, Task<IOption<T>>> getAsync)
+        => o.HasValue ? Task.FromResult(o) : getAsync(t1, o);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ValueOr<T>(this IOption<T> o, Func<T> alterGet)
@@ -58,8 +74,8 @@ public static partial class Option
     #region Then
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IOption<R> Then<T, R>(this IOption<T> o, Func<T, IOption<R>> actionThen, Func<IOption<R>>? actionOr = null, [CallerMemberName] string? methodName = null)
-        => o.HasValue ? actionThen(o.Value) : actionOr?.Invoke() ?? Error<R>(o, methodName);
+    public static IOption<R> Then<T, R>(this IOption<T> o, Func<T, IOption<R>> actionThen, Func<IOption<T>, IOption<R>>? actionOr = null)
+        => o.HasValue ? actionThen(o.Value) : actionOr?.Invoke(o) ?? Error<R>(o);
 
     //[MethodImpl(MethodImplOptions.AggressiveInlining)]
     //public static IOption<R> ThenValue<T, R>(this IOption<T> o, Func<T, R> actionThen, [CallerMemberName] string? methodName = null)
@@ -71,13 +87,13 @@ public static partial class Option
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IOption<R> ThenTryValue<T, R>(this IOption<T> o, Func<T, R> select, [CallerMemberName] string? methodName = null)
-        => o.HasValue ? Try(o.Value, select, methodName) : Error<R>(o, methodName);
+        => o.HasValue ? Try(o.Value, select, methodName) : Error<R>(o);
 
 
     //  with arg1
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IOption<R> Then<T, T1, R>(this IOption<T> o, T1 t1, Func<T1, T, IOption<R>> action, Func<T1, IOption<R>>? actionOr = null, [CallerMemberName] string? methodName = null)
-        => o.HasValue ? action(t1, o.Value) : actionOr?.Invoke(t1) ?? Error<R>(o, methodName);
+    public static IOption<R> Then<T, T1, R>(this IOption<T> o, T1 t1, Func<T1, T, IOption<R>> action, Func<T1, IOption<T>, IOption<R>>? actionOr = null)
+        => o.HasValue ? action(t1, o.Value) : actionOr?.Invoke(t1, o) ?? Error<R>(o);
 
     #region async
 
@@ -89,8 +105,8 @@ public static partial class Option
 
     //  Functions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Task<IOption<R>> ThenAsync<T, R>(this IOption<T> o, Func<T, Task<IOption<R>>> select, Func<Task<IOption<R>>>? actionOr = null, [CallerMemberName] string? methodName = null)
-        => o.HasValue ? select(o.Value) : actionOr?.Invoke() ?? Task.FromResult(Error<R>(o, methodName));
+    public static Task<IOption<R>> ThenAsync<T, R>(this IOption<T> o, Func<T, Task<IOption<R>>> select, Func<IOption<T>, Task<IOption<R>>>? actionOr = null)
+        => o.HasValue ? select(o.Value) : actionOr?.Invoke(o) ?? Task.FromResult(Error<R>(o));
 
 
     ////  Actions with arg1
@@ -101,8 +117,8 @@ public static partial class Option
 
     //  Functions with arg1
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Task<IOption<R>> ThenAsync<T, T1, R>(this IOption<T> o, T1 t1, Func<T1, T, Task<IOption<R>>> actionThen, Func<T1, Task<IOption<R>>>? actionOr = null, [CallerMemberName] string? methodName = null)
-        => o.HasValue ? actionThen(t1, o.Value) : actionOr?.Invoke(t1) ?? Task.FromResult(Error<R>(o, methodName));
+    public static Task<IOption<R>> ThenAsync<T, T1, R>(this IOption<T> o, T1 t1, Func<T1, T, Task<IOption<R>>> actionThen, Func<T1, IOption<T>, Task<IOption<R>>>? actionOr = null)
+        => o.HasValue ? actionThen(t1, o.Value) : actionOr?.Invoke(t1, o) ?? Task.FromResult(Error<R>(o));
 
     #endregion
 
@@ -118,10 +134,10 @@ public static partial class Option
 
     //  Functions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<IOption<R>> AwaitThen<T, R>(this Task<IOption<T>> to, Func<T, IOption<R>> select, Func<IOption<R>>? actionOr = null, [CallerMemberName] string? methodName = null)
+    public static async Task<IOption<R>> AwaitThen<T, R>(this Task<IOption<T>> to, Func<T, IOption<R>> select, Func<IOption<T>, IOption<R>>? actionOr = null)
     {
         var o = await to;
-        return o.Then(select, actionOr, methodName);
+        return o.Then(select, actionOr);
     }
 
     //[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -139,10 +155,10 @@ public static partial class Option
     //}
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<IOption<R>> AwaitThenAsync<T, R>(this Task<IOption<T>> to, Func<T, Task<IOption<R>>> select, Func<Task<IOption<R>>>? actionOr = null, [CallerMemberName] string? methodName = null)
+    public static async Task<IOption<R>> AwaitThenAsync<T, R>(this Task<IOption<T>> to, Func<T, Task<IOption<R>>> select, Func<IOption<T>, Task<IOption<R>>>? actionOr = null)
     {
         var o = await to;
-        return await o.ThenAsync(select, actionOr, methodName);
+        return await o.ThenAsync(select, actionOr);
     }
 
     //  with arg1
@@ -154,10 +170,10 @@ public static partial class Option
     //}
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static async Task<IOption<R>> AwaitThenAsync<T, T1, R>(this Task<IOption<T>> to, T1 t1, Func<T1, T, Task<IOption<R>>> select, Func<T1, Task<IOption<R>>>? actionOr = null, [CallerMemberName] string? methodName = null)
+    public static async Task<IOption<R>> AwaitThenAsync<T, T1, R>(this Task<IOption<T>> to, T1 t1, Func<T1, T, Task<IOption<R>>> select, Func<T1, IOption<T>, Task<IOption<R>>>? actionOr = null)
     {
         var o = await to;
-        return await o.ThenAsync(t1, select, actionOr, methodName);
+        return await o.ThenAsync(t1, select, actionOr);
     }
 
     #endregion
@@ -165,18 +181,14 @@ public static partial class Option
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IOption<T> Validate<T>(this IOption<T> o, Func<T, bool> isValid, string error = MsgInvalid, [CallerMemberName] string? methodName = null)
-        => o.HasValue
-            ? isValid(o.Value)
-                ? o
-                : Error<T>(error, null, methodName)
-            : Error<T>(o, methodName);
+    public static IOption<T> Validate<T>(this IOption<T> o, Func<T, bool> isValid, string argName, string error = MsgInvalid, [CallerMemberName] string? methodName = null)
+        => o.HasValue && !isValid(o.Value)
+            ? Error<T>(argName, () => error, methodName)
+            : o;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IOption<T> Validate<T, T1>(this IOption<T> o, T1 t1, Func<T1, T, bool> isValid, string error = MsgInvalid, [CallerMemberName] string? methodName = null)
-        => o.HasValue
-            ? isValid(t1, o.Value)
-                ? o
-                : Error<T>(error, null, methodName)
-            : Error<T>(o, methodName);
+    public static IOption<T> Validate<T, T1>(this IOption<T> o, T1 t1, Func<T1, T, bool> isValid, string argName, string error = MsgInvalid, [CallerMemberName] string? methodName = null)
+        => o.HasValue && !isValid(t1, o.Value)
+            ? Error<T>(argName, () => error, methodName)
+            : o;
 }

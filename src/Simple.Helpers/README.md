@@ -70,6 +70,11 @@ some extensions for collectopns,
 some other extensions (string, Type)
 
 ##  Release notes
+###	8.0.1.6
+		update:
+			refactoring Options Extensions
+		note:
+			changed signatures of some methods!
 ### 8.0.0.5
 	append:
 		support net8.0

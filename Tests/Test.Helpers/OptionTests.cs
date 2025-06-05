@@ -4,7 +4,7 @@ namespace Test.Helpers;
 
 public class OptionTests
 {
-
+    private const string argName = "some arg";
     #region Create
 
     [Theory]
@@ -14,7 +14,7 @@ public class OptionTests
     [InlineData("2some", true)]
     public void CreateStr(string? value, bool expected)
     {
-        var actual = Option.String(value).Validate(i => i?.StartsWith("2") == true);
+        var actual = Option.String(value).Validate(i => i?.StartsWith("2") == true, argName);
         CreateAssert(actual, value, expected);
     }
 
@@ -24,7 +24,7 @@ public class OptionTests
     [InlineData(5, true)]
     public void CreateInt(int? value, bool expected)
     {
-        var actual = Option.Value(value).NotNull();
+        var actual = Option.Value(value).NotNull(argName);
 
         Assert.Equal(expected, actual.HasValue);
         if (expected)
@@ -44,7 +44,7 @@ public class OptionTests
     [InlineData(5, true)]
     public void CreateObj(object? value, bool expected)
     {
-        var actual = Option.Value(value).NotNull();
+        var actual = Option.Value(value).NotNull(argName);
         CreateAssert(actual, value, expected);
     }
 
@@ -120,7 +120,7 @@ public class OptionTests
     {
         //  arrange
         var o = Option.Error<int>(message);
-        var expected = Option.MessageMethodFormat(o.GetError);
+        var expected = Option.MessageMethodFormat(() => message);
 
         //  test
         var actual = Option.Error<object>(o);
