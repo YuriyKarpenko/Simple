@@ -3,10 +3,9 @@
 using Simple.Logging.Configuration;
 
 namespace Test.Logging;
-
-public class LogOptionItemTests
+public class LogOptionItemRawTests
 {
-    private readonly LogOptionItem svc = new LogOptionItem(LogLevel.Error);
+    private readonly LogOptionItemRaw svc = new LogOptionItemRaw(LogLevel.Critical);
 
 
     [Theory]
@@ -27,7 +26,7 @@ public class LogOptionItemTests
         svc.Populate(jo);
 
         //  assert
-        Assert.Equal(expectedCount, svc.Options.Count);
+        Assert.Equal(expectedCount, svc.Count);
         Assert.Equal(expectedDefault, svc.LogLevel.Default);
         Assert.Equal(expectedRulesCount, svc.LogLevel.Count);
     }

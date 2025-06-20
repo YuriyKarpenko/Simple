@@ -16,27 +16,27 @@ public class LogOptionsTests
     public void EnsureOptionItem(string observerName)
     {
         //  test
-        svc.EnsureOptionItem(observerName);
+        svc.EnsureOptionItem(new LogOptionItem(observerName, null));
 
         //  assert
-        Assert.True(svc.ContainsKey(observerName));
+        Assert.True(svc.FilterItems.ContainsKey(observerName));
     }
 
-    [Theory]
-    [InlineData("qwer", LogLevel.Critical)]
-    [InlineData("asdf", LogLevel.Debug)]
-    public void SetFilterItem(string observerName, LogLevel level)
-    {
-        //  arrangr
-        var fi = new LoggerFilterItem(level);
+    //[Theory]
+    //[InlineData("qwer", LogLevel.Critical)]
+    //[InlineData("asdf", LogLevel.Debug)]
+    //public void SetFilterItem(string SObserverName, LogLevel level)
+    //{
+    //    //  arrangr
+    //    var fi = new LoggerFilterItem(level);
 
-        //  test
-        svc.SetFilterItem(observerName, fi);
+    //    //  test
+    //    svc.SetFilterItem(SObserverName, fi);
 
-        //  assert
-        Assert.True(svc.ContainsKey(observerName));
-        Assert.Equal(fi, svc[observerName].LogLevel);
-    }
+    //    //  assert
+    //    Assert.True(svc.ContainsKey(SObserverName));
+    //    Assert.Equal(fi, svc[SObserverName].LogLevel);
+    //}
 
     [Theory]
     [InlineData(LoggerFilterItemTests.NsRoot + ".Ns_0.Ns_1", LogLevel.None, true)]          //  current = Error     : svc.Default <= None
@@ -51,9 +51,11 @@ public class LogOptionsTests
     {
         //  arrangr
         LoggerFilterItemTests.TestRules.Remove(string.Empty);
-        var fi = new LoggerFilterItem();
-        fi.Merge(LoggerFilterItemTests.TestRules);
-        svc.SetFilterItem("some observer name", fi);
+        //var fi = new LoggerFilterItem();
+        //fi.Merge(LoggerFilterItemTests.TestRules);
+        //svc.SetFilterItem("some observer name", fi);
+        svc.LogLevel.Merge(LoggerFilterItemTests.TestRules);
+
         svc.LogLevel.Default = LogLevel.Critical;
 
         //  test
@@ -89,7 +91,7 @@ public class LogOptionsTests
     public void Json(string json, int expectedCount, LogLevel expectedDefault)
     {
         //  arrange
-        svc.Clear();
+        svc.FilterItems.Clear();
         var jo = JObject.Parse(json);
 
         //  test
@@ -97,6 +99,6 @@ public class LogOptionsTests
 
         //  assert
         Assert.Equal(expectedDefault, svc.LogLevel.Default);
-        Assert.Equal(expectedCount, svc.Count);
+        Assert.Equal(expectedCount, svc.FilterItems.Count);
     }
 }

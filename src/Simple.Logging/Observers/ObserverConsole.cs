@@ -7,24 +7,23 @@ using Simple.Logging.Messages;
 namespace Simple.Logging.Observers;
 
 [LoggerName("Console")]
-public class ObserverConsole : ObserverBase<ObserverConsole>
+public class ObserverConsole : ObserverBase//<ObserverConsole>
 {
-    public ObserverConsole(ILogOptions options, Action<LoggerFilterItem, ConfigurationConsole>? confogure = null) : base(options)
+    private readonly LogOptionItemConsole _oi;
+    public ObserverConsole(ILogOptions options, Action<LogOptionItemConsole>? confogure = null)
     {
-        var oi = options.EnsureOptionItem(Name);
-        Configuration = new ConfigurationConsole();
-        Configuration.ApplyOptions(oi.Options);
-        confogure?.Invoke(FilterItem, Configuration);
+        _oi = new LogOptionItemConsole(options);
+        confogure?.Invoke(_oi);
+        options.EnsureOptionItem(_oi);
     }
 
-
-    public ConfigurationConsole Configuration { get; }
+    protected override ILogOptionItem OptionItem => _oi;
 
     protected override void Write(LogMessage e)
     {
         lock (this)
         {
-            var text = LogManager.MessageFactory.ToStringWithoutLevel(e, Configuration.IncludeScopes);
+            var text = LogManager.MessageFactory.ToStringWithoutLevel(e, _oi.IncludeScopes);
 
             WriteLevel(Console.Out, e.Level);
             Console.Out.WriteLine(text);
@@ -34,7 +33,7 @@ public class ObserverConsole : ObserverBase<ObserverConsole>
     private void WriteLevel(TextWriter tw, LogLevel level)
     {
         var value = $"{level.ToShortName(),-7}";
-        if (Configuration.DisableColors)
+        if (_oi.DisableColors)
         {
             tw.Write(value);
         }
@@ -42,11 +41,11 @@ public class ObserverConsole : ObserverBase<ObserverConsole>
         {
             try
             {
-                if (Configuration.BackColors.TryGetValue(level, out var back))
+                if (_oi.BackColors.TryGetValue(level, out var back))
                 {
                     Console.BackgroundColor = back;
                 }
-                if (Configuration.ForeColors.TryGetValue(level, out var fore))
+                if (_oi.ForeColors.TryGetValue(level, out var fore))
                 {
                     Console.ForegroundColor = fore;
                 }

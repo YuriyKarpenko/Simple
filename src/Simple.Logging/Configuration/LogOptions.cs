@@ -2,53 +2,54 @@
 
 namespace Simple.Logging.Configuration;
 
-public interface ILogOptions
+public interface ILogOptions : ILogOptionItem
 {
-    /// <summary> Common filter </summary>
-    LoggerFilterItem LogLevel { get; }
+    /// <summary> observer RAW options for Simple.Hosting </summary>
+    DicString<LogOptionItemRaw> RawOptions { get; }
+
+    //  настроенные параметры подписчиков (а главное - настроенные фильтры)
+    DicString<ILogOptionItem> FilterItems { get; }
 
     /// <summary> Can process the log-message with <paramref name="level"/> and <paramref name="logSource"/> /> </summary>
     /// <returns>Can we process this message</returns>
     bool FilterIn(LogLevel level, string logSource);
 
-    LogOptionItem EnsureOptionItem(string observerName);
-
-    //void SetFilterItem(string observerName, LoggerFilterItem filterItem);
+    ILogOptionItem EnsureOptionItem(ILogOptionItem optionItem);
 }
 
-public class LogOptions : DictionaryString<LogOptionItem>, ILogOptions
+public class LogOptions : LogOptionItem, ILogOptions
 {
     public static readonly LogOptions Instance = new();
 
-    private LogOptions()
+    private LogOptions() : base(string.Empty, null)
     {
-        LogLevel = new LoggerFilterItem();
+        FilterItems = [];
+        RawOptions = [];
     }
 
-    public LoggerFilterItem LogLevel { get; set; }
+    /// <summary> [ConfigName, [OptionName, OptionValue]] (observer RAW options) </summary>
+    public DicString<LogOptionItemRaw> RawOptions { get; }
 
-
+    //  настроенные параметры подписчиков (а главное - настроенные фильтры)
+    public DicString<ILogOptionItem> FilterItems { get; }
 
     public bool FilterIn(LogLevel level, string logSource)
     {
         return LogLevel.Filter(level, logSource) ||
-            Values.Any(option => option.LogLevel.Filter(level, logSource));
+            FilterItems.Values.Any(option => option.LogLevel.Filter(level, logSource));
     }
 
-    public LogOptionItem EnsureOptionItem(string observerName)
+    public ILogOptionItem EnsureOptionItem(ILogOptionItem optionItem)
     {
-        if (!TryGetValue(observerName, out var optionItem))
+        if (!FilterItems.ContainsKey(optionItem.ConfigName))
         {
-            this[observerName] = optionItem = new LogOptionItem(LogLevel.Default);
+            FilterItems[optionItem.ConfigName] = optionItem;
+            if (optionItem is LogOptionItem loi && RawOptions.TryGetValue(optionItem.ConfigName, out var raw))
+            {
+                loi.ApplyOptions(raw);
+            }
         }
         return optionItem;
-    }
-
-    public void SetFilterItem(string observerName, LoggerFilterItem filterItem)
-    {
-        Throw.IsArgumentNullException(observerName, nameof(observerName));
-        Throw.IsArgumentNullException(filterItem, nameof(filterItem));
-        EnsureOptionItem(observerName).LogLevel = filterItem;
     }
 }
 

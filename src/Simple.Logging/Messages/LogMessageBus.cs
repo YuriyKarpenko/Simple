@@ -7,6 +7,7 @@ namespace Simple.Logging.Messages;
 
 public interface ILogMessageBus<TLogMessage> : IObservable<TLogMessage>
 {
+    void Clear();
     /// <summary> Eter new message for observers </summary>
     void Push(TLogMessage entry);
 }
@@ -18,6 +19,14 @@ public class LogMessageBus : ILogMessageBus<LogMessage>
 
     private readonly ConcurrentDictionary<string, SubscriberEntry> _targets
         = new ConcurrentDictionary<string, SubscriberEntry>(StringComparer.OrdinalIgnoreCase);
+
+    public void Clear()
+    {
+        foreach (var target in _targets.Values)
+        {
+            RemoveSubscriber(target);
+        }
+    }
 
     public virtual void Push(LogMessage entry)
     {
@@ -49,11 +58,6 @@ public class LogMessageBus : ILogMessageBus<LogMessage>
         return NoopDisposable.Instance;
     }
 
-    //public void Clear()
-    //{
-    //    _targets.Clear();
-    //}
-
     private void RemoveSubscriber(SubscriberEntry value)
     {
         //Volatile.Write<Node>(ref tables._buckets[bucketNo], new Node(key, value, hashcode, tables._buckets[bucketNo]));
@@ -63,6 +67,7 @@ public class LogMessageBus : ILogMessageBus<LogMessage>
         //}
         if (_targets.TryRemove(value.Name, out var d))
         {
+            LogManager.Options.FilterItems.Remove(value.Name);
             d.Dispose();
         }
     }

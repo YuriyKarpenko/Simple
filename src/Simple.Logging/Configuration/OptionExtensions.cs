@@ -17,13 +17,19 @@ public static class OptionExtensions
         => LogManager.LoggerFactory.CreateLogger<T>();
 
 
-    public static ILogOptions AddConsole(this ILogOptions o, Action<LoggerFilterItem, ConfigurationConsole>? configure = null)
+    public static ILogOptions ClearObservers(this ILogOptions o)
+    {
+        LogMessageBus.Instance.Clear();
+        return o;
+    }
+
+    public static ILogOptions AddConsole(this ILogOptions o, Action<LogOptionItemConsole>? configure = null)
     {
         var observer = new ObserverConsole(o, configure);
         return o.AddObserver(observer);
     }
 
-    public static ILogOptions AddDebug(this ILogOptions o, Action<LoggerFilterItem>? configure = null)
+    public static ILogOptions AddDebug(this ILogOptions o, Action<LogOptionItemDebug>? configure = null)
     {
         var observer = new ObserverDebug(o, configure);
         return o.AddObserver(observer);

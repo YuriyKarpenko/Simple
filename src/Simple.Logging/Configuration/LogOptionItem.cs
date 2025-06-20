@@ -1,15 +1,42 @@
 ﻿namespace Simple.Logging.Configuration;
 
-public class LogOptionItem
+public interface ILogOptionItem
 {
-    public LogOptionItem(LogLevel minLevel)
+    string ConfigName { get; }
+
+    /// <summary> filter item </summary>
+    LoggerFilterItem LogLevel { get; }
+}
+
+public class LogOptionItem(string configName, ILogOptionItem? root) : ILogOptionItem
+{
+    public string ConfigName => configName;
+    public LoggerFilterItem LogLevel { get; } = CloneFilter(root?.LogLevel);
+
+    /// <summary> Init external observer with RAW options </summary>
+    /// <param name="rawData"> [OptionName, OptionValue] (observers RAW options) </param>
+    public virtual void ApplyOptions(LogOptionItemRaw rawData)
     {
-        LogLevel = new LoggerFilterItem(minLevel);
-        Options = new DictionaryString<string>();
+        LogLevel.Merge(rawData.LogLevel);
     }
 
-    public LoggerFilterItem LogLevel { get; set; }
 
-    /// <summary> [OptionName, OptionValue] (observer RAW options) </summary>
-    public DictionaryString<string> Options { get; }
+    private static LoggerFilterItem CloneFilter(LoggerFilterItem? src)
+    {
+        var res = new LoggerFilterItem();
+        if (src != null)
+        {
+            res.Merge(src);
+            res.Default = src.Default;
+        }
+        return res;
+    }
+}
+
+public class LogOptionItemRaw(LogLevel defaultLevel) : DicString<string>, ILogOptionItem
+{
+    public const string SConfigName = "RAW";
+
+    public string ConfigName => SConfigName;
+    public LoggerFilterItem LogLevel { get; } = new LoggerFilterItem(defaultLevel);
 }

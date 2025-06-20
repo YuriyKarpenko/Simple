@@ -10,22 +10,16 @@ public interface ILogObserver : IObserver<LogMessage>
 {
     /// <summary> Observers name for filtering </summary>
     string Name { get; }
-    public LoggerFilterItem FilterItem { get; }
+    //public LoggerFilterItem FilterItem { get; }
 }
 
 public abstract class ObserverBase : ILogObserver
 {
-    protected readonly ILogOptions _options;
-    public ObserverBase(ILogOptions options)
-    {
-        _options = options;
-    }
+    protected abstract ILogOptionItem OptionItem { get; }
 
-
-    public LoggerFilterItem FilterItem => _options.EnsureOptionItem(Name).LogLevel;
 
     /// <inheritdoc />
-    public abstract string Name { get; }
+    public virtual string Name => OptionItem.ConfigName;
 
     #region IObserver
 
@@ -38,7 +32,8 @@ public abstract class ObserverBase : ILogObserver
     /// <inheritdoc />
     public void OnNext(LogMessage value)
     {
-        if (FilterItem.Filter(value.Level, value.LogSource) || _options.LogLevel.Filter(value.Level, value.LogSource))
+        //if (FilterItem.Filter(value.Level, value.LogSource) || _options.LogLevel.Filter(value.Level, value.LogSource))
+        if (OptionItem.LogLevel.Filter(value.Level, value.LogSource))
         {
             Write(value);
         }
@@ -51,15 +46,13 @@ public abstract class ObserverBase : ILogObserver
 
 public abstract class ObserverBase<T> : ObserverBase where T : ObserverBase
 {
-    public static readonly string ObserverName;
+    public static readonly string ConfigName;
     static ObserverBase()
     {
         var a = typeof(T).GetCustomAttribute<LoggerNameAttribute>();
-        ObserverName = Throw.IsArgumentNullException(a, nameof(LoggerNameAttribute)).Name;
+        ConfigName = Throw.IsArgumentNullException(a, nameof(LoggerNameAttribute)).Name;
     }
 
 
-    public ObserverBase(ILogOptions options) : base(options) { }
-
-    public override string Name => ObserverName;
+    public override string Name => ConfigName;
 }

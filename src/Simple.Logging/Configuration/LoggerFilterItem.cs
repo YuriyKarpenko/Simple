@@ -4,19 +4,14 @@ using System.Linq;
 namespace Simple.Logging.Configuration;
 
 /// <summary> Defines a rule used to filter log messages </summary>
-public class LoggerFilterItem : DictionaryString<LogLevel>
+public class LoggerFilterItem(LogLevel minLevel = LogLevel.Error) : DicString<LogLevel>(StringComparer.OrdinalIgnoreCase)
 {
-    public LoggerFilterItem(LogLevel minLevel = LogLevel.Error)
+    public LogLevel Default { get; set; } = minLevel;
+
+
+    public new LogLevel this[string nameSpace]
     {
-        Default = minLevel;
-    }
-
-    public LogLevel Default { get; set; }
-
-
-    public override LogLevel this[string nameSpace]
-    {
-        get => IsDefault(nameSpace) ? Default : _inner[nameSpace];
+        get => IsDefault(nameSpace) ? Default : base[nameSpace];
         set
         {
             if (IsDefault(nameSpace))
@@ -25,14 +20,15 @@ public class LoggerFilterItem : DictionaryString<LogLevel>
             }
             else
             {
-                _inner[nameSpace] = value;
+                base[nameSpace] = value;
             }
         }
     }
 
     public bool Filter(LogLevel level, string logSource)
     {
-        return level >= Default ? true : _inner.Any(i => level >= i.Value && logSource.StartsWith(i.Key, StringComparison.OrdinalIgnoreCase));
+        var b = level >= Default || this.Any(i => level >= i.Value && logSource.StartsWith(i.Key, StringComparison.OrdinalIgnoreCase));
+        return b;
     }
 
 
