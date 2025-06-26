@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Simple.DI;
 
@@ -7,6 +8,9 @@ public static class DiExtensions
     public static T? GetService<T>(this IServiceProvider resolver)
         => (T?)resolver?.GetService(typeof(T));
 
+    public static IEnumerable<object?> GetServices<T>(this IServiceProvider resolver)
+        => (resolver as Resolver)?.GetServices(typeof(T)) ?? [];
+
     [Obsolete("Will be removed")]
     public static IProviderSetup AddConst<I>(this IProviderSetup setup, I instance)
         => AddSingleton<I>(setup, instance);
@@ -14,6 +18,18 @@ public static class DiExtensions
     //  Singleton
     public static IProviderSetup AddSingleton<I>(this IProviderSetup setup, I instance)
         => UsingSetup(setup, s => s.Register(typeof(I), () => instance));
+
+    public static IProviderSetup AddSingleton(this IProviderSetup setup, Type t)
+    {
+        object? instance = default;
+        return UsingSetup(setup, s => s.Register(t, _ => (instance ??= Activator.CreateInstance(t))));
+    }
+
+    public static IProviderSetup AddSingleton<I>(this IProviderSetup setup, Type t)
+    {
+        I? instance = default;
+        return UsingSetup(setup, s => s.Register(typeof(I), _ => (instance ??= (I?)Activator.CreateInstance(t))));
+    }
 
     public static IProviderSetup AddSingleton<I>(this IProviderSetup setup, Func<IServiceProvider, I> factory)
     {
@@ -31,6 +47,18 @@ public static class DiExtensions
         => AddSingleton<T, T>(setup);
 
     //  Scoped
+    public static IProviderSetup AddScoped(this IProviderSetup setup, Type t)
+    {
+        object? instance = default;
+        return UsingSetup(setup, s => s.RegisterScoped(t, _ => (instance ??= Activator.CreateInstance(t))));
+    }
+
+    public static IProviderSetup AddScoped<I>(this IProviderSetup setup, Type t)
+    {
+        I? instance = default;
+        return UsingSetup(setup, s => s.RegisterScoped(typeof(I), _ => (instance ??= (I?)Activator.CreateInstance(t))));
+    }
+
     public static IProviderSetup AddScoped<I>(this IProviderSetup setup, Func<IServiceProvider, I> factory)
         => UsingSetup(setup, s => s.RegisterScoped(typeof(I), sp => factory(sp)));
 
@@ -44,6 +72,12 @@ public static class DiExtensions
         => UsingSetup(setup, s => s.RegisterScoped(typeof(T), () => new T()));
 
     //  Transient
+    public static IProviderSetup AddTransient(this IProviderSetup setup, Type t) 
+        => UsingSetup(setup, s => s.RegisterScoped(t, _ => Activator.CreateInstance(t)));
+
+    public static IProviderSetup AddTransient<I>(this IProviderSetup setup, Type t) 
+        => UsingSetup(setup, s => s.RegisterScoped(typeof(I), _ => (I)Activator.CreateInstance(t)!));
+
     public static IProviderSetup AddTransient<I>(this IProviderSetup setup, Func<I> factory)
         => UsingSetup(setup, s => s.Register(typeof(I), _ => factory()));
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Simple.DI;
 
@@ -15,6 +16,8 @@ public interface IProviderSetup<TKey>
 
     /// <summary> Creating IDisposable object to capture scoped resolver </summary>
     IDisposable CreateScope();
+
+    IEnumerable<object?> GetServices(Predicate<TKey> predicate);
 }
 
 public interface IProviderSetup : IProviderSetup<Type>, IServiceProvider
@@ -24,6 +27,8 @@ public interface IProviderSetup : IProviderSetup<Type>, IServiceProvider
 
     /// <summary> Registering factory of object with IServiceProvider </summary>
     void RegisterScoped(Type key, Func<IServiceProvider, object?> factory);
+
+    IEnumerable<object?> GetServices(Type baseType);
 
     /// <summary> Creating a type-resolver </summary>
     IServiceProvider BuildServiceProvider();

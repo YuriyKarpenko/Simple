@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace Simple.DI;
 
@@ -57,7 +58,32 @@ public class Resolver<TKey>(Resolver<TKey>? parentResolver) : IProviderSetup<TKe
     public virtual void RegisterScoped(TKey key, Func<object?> factory)
         => ResolverScoped.Register(key, factory);
 
+    public IEnumerable<object?> GetServices(Predicate<TKey> predicate)
+    {
+        foreach (var res in AllResolvers())
+        {
+            var reg = res._registry;
+            foreach (var t in reg.Keys)
+            {
+                if (predicate(t))
+                {
+                    yield return reg[t]();
+                }
+            }
+        }
+    }
+
     #endregion
+
+    protected IEnumerable<Resolver<TKey>> AllResolvers()
+    {
+        var res = ResolverScoped;
+        while (res != null)
+        {
+            yield return res;
+            res = res._parentResolver;
+        }
+    }
 }
 
 public class Resolver(Resolver? parentResolver = null) : Resolver<Type>(parentResolver), IProviderSetup, IServiceProvider
@@ -77,6 +103,9 @@ public class Resolver(Resolver? parentResolver = null) : Resolver<Type>(parentRe
 
     public IServiceProvider BuildServiceProvider()
         => this;
+
+    public IEnumerable<object?> GetServices(Type baseType) 
+        => GetServices(baseType.IsAssignableFrom);
 
     #endregion
 }
