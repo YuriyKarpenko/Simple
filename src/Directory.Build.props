@@ -10,14 +10,13 @@
         <Company>YK</Company>
         <Copyright>Copyright YK.</Copyright>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+        <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageProjectUrl>https://github.com/YuriyKarpenko/Simple</PackageProjectUrl>
         <RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="..\..\LICENSE.txt" Pack="True" PackagePath="\" Visible="false"/>
         <None Include="README.md" Pack="True" PackagePath="\" />
     </ItemGroup>
 
