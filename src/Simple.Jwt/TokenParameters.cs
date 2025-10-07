@@ -194,11 +194,11 @@ public static class ParametersExtensions
     {
         var payload = new JwtPayload(_parameters.Payload);
 
-        if (_parameters.ValidateExpirationTime || _parameters.ValidateIssuedTime)
+        //if (_parameters.ValidateExpirationTime || _parameters.ValidateIssuedTime)
         {
             var now = _parameters.DateTimeProvider.GetNow();
 
-            if (_parameters.ValidateIssuedTime)
+            //if (_parameters.ValidateIssuedTime)
             {
                 var nb = UnixEpoch.GetSecondsSince(now);
                 payload.NotBefore(nb);

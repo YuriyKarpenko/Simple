@@ -18,6 +18,12 @@ public Task<IConfigApp> GetAppConfigAsync()
 	=> _configApp.GetOrCreateAsync(CreateConfigAsync);
 ```
 ##  Release notes
-### 1.0.0.1
+### 0.0.2.2
+	fix:
+		generate "NotBefore" and "IssuedAt" always
+	update:
+		extending error messages
+
+### 0.0.1.1
 	update:
 		start

@@ -14,6 +14,9 @@ public static class JwtErrors
     public static string ErrorArgumentIsNull(string parameterName) => $"Argument is null: '{parameterName}'.";
     public static string ErrorArgumentIsInvalid(string parameterName) => $"Argument is invalid: '{parameterName}'.";
 
+    public static string ErrorClaimConvert<T>(string parameterName, object value) => $"Claim '{parameterName}' can't convert to {typeof(T).Name}.";
+    public static string ErrorClaimIsBad(string parameterName) => $"Claim '{parameterName}' has bad value.";
+    public static string ErrorClaimIsExpected(string parameterName) => $"Claim '{parameterName}' is expected.";
     public static string ErrorTimeClaim(string parameterName) => $"Claim '{parameterName}' must be a number.";
 
     public static bool IsArgumentNotNull(object? value, string paramName, out string? error)

@@ -36,53 +36,32 @@ public sealed class JwtValidator : IJwtValidator
     /// <summary> Verifies the 'iss' claim. </summary>
     /// <remarks>See https://tools.ietf.org/html/rfc7519#section-4.1.1</remarks>
     public static string? CheckClaimIss(IJwtPayload payloadData, string origValue)
-    {
-        return !(payloadData.TryGet(ClaimName.Issuer, out string? value) && string.Equals(value, origValue, StringComparison.Ordinal))
-            ? JwtErrors.ErrorTimeClaim(ClaimName.Issuer)
-            : null;
-    }
+        => TryGet(payloadData, ClaimName.Issuer, out string? value)
+            ?? Assert(string.Equals(value, origValue, StringComparison.Ordinal), JwtErrors.ErrorClaimIsBad(ClaimName.Issuer));
 
     /// <summary> Verifies the 'aud' claim. </summary>
     /// <remarks>See https://tools.ietf.org/html/rfc7519#section-4.1.3</remarks>
     public static string? CheckClaimAud(IJwtPayload payloadData, string origValue)
-    {
-        return !(payloadData.TryGet(ClaimName.Audience, out string? value) && string.Equals(value, origValue))
-            ? JwtErrors.ErrorTimeClaim(ClaimName.Audience)
-            : null;
-    }
+        => TryGet(payloadData, ClaimName.Audience, out string? value)
+            ?? Assert(string.Equals(value, origValue, StringComparison.Ordinal), JwtErrors.ErrorClaimIsBad(ClaimName.Audience));
 
     /// <summary> Verifies the 'exp' claim. </summary>
     /// <remarks>See https://tools.ietf.org/html/rfc7519#section-4.1.4</remarks>
     public static string? CheckClaimExp(IJwtPayload payloadData, long secondsSinceEpoch, TimeSpan timeMargin)
-    {
-        return payloadData.TryGet(ClaimName.ExpirationTime, out long value)
-            ? secondsSinceEpoch - timeMargin.Seconds >= value
-                ? JwtErrors.ErrorInvalidClaimExp
-                : null
-            : JwtErrors.ErrorTimeClaim(ClaimName.ExpirationTime);
-    }
+        => TryGet(payloadData, ClaimName.ExpirationTime, out long value, JwtErrors.ErrorTimeClaim)
+            ?? Assert(secondsSinceEpoch - timeMargin.TotalSeconds < value, JwtErrors.ErrorInvalidClaimExp);
 
     /// <summary> Verifies the 'nbf' claim. </summary>
     /// <remarks>See https://tools.ietf.org/html/rfc7519#section-4.1.5</remarks>
     public static string? CheckClaimNbf(IJwtPayload payloadData, long secondsSinceEpoch, TimeSpan timeMargin)
-    {
-        return payloadData.TryGet(ClaimName.NotBefore, out long nbfValue)
-            ? secondsSinceEpoch + timeMargin.Seconds < nbfValue
-                ? JwtErrors.ErrorInvalidClaimNbf
-                : null
-            : JwtErrors.ErrorTimeClaim(ClaimName.NotBefore);
-    }
+        => TryGet(payloadData, ClaimName.NotBefore, out long value, JwtErrors.ErrorTimeClaim)
+            ?? Assert(secondsSinceEpoch + timeMargin.TotalSeconds >= value, JwtErrors.ErrorInvalidClaimNbf);
 
     /// <summary> Verifies the 'iat' claim. </summary>
     /// <remarks>See https://tools.ietf.org/html/rfc7519#section-4.1.6</remarks>
     public static string? CheckClaimIat(IJwtPayload payloadData, long secondsSinceEpoch, TimeSpan timeMargin)
-    {
-        return payloadData.TryGet(ClaimName.IssuedAt, out long nbfValue)
-            ? secondsSinceEpoch + timeMargin.Seconds < nbfValue
-                ? JwtErrors.ErrorInvalidClaimNbf
-                : null
-            : JwtErrors.ErrorTimeClaim(ClaimName.IssuedAt);
-    }
+        => TryGet(payloadData, ClaimName.IssuedAt, out long value, JwtErrors.ErrorTimeClaim)
+            ?? Assert(secondsSinceEpoch + timeMargin.TotalSeconds >= value, JwtErrors.ErrorInvalidClaimNbf);
 
     public static string? CheckNoneAlgorithm(JwtParts jwtWithHeader)
     {
@@ -114,6 +93,36 @@ public sealed class JwtValidator : IJwtValidator
         }
     }
 
+
+    private static string? Assert(bool condition, string error)
+        => condition ? null : error;
+
+    //private static IOption<object> CheckExists(IJwtPayload payloadData, string claimName)
+    //{
+    //    return payloadData.TryGetValue(claimName, out var value)
+    //        ? Option.Value(value)
+    //        : Option.Error<object>(JwtErrors.ErrorClaimIsExpected(claimName));
+    //}
+
+    private static string? TryGet<T>(IJwtPayload payloadData, string claimName, out T? value, Func<string, string>? convertErr = null)
+    {
+        value = default;
+
+        if (!payloadData.TryGetValue(claimName, out var o))
+        {
+            return JwtErrors.ErrorClaimIsExpected(claimName);
+        }
+
+        if (o is T t)
+        {
+            value = t;
+            return null;
+        }
+
+        value = default;
+        return convertErr is null ? JwtErrors.ErrorClaimConvert<T>(claimName, o) : convertErr(claimName);
+    }
+
     #endregion
 
     private readonly TokenParameters _valParams;
@@ -130,7 +139,7 @@ public sealed class JwtValidator : IJwtValidator
         _valParams = Throw.IsArgumentNullException(valParams, nameof(valParams));
         if (!valParams.Validate(out var message))
         {
-            throw new ArgumentNullException(message);
+            throw new ArgumentException(message);
         }
     }
 
