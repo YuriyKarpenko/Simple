@@ -1,15 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Description>
-            Simple wrapers of vallue with TTL as:
+		<Description>
+            Simple wrappers of vallue with TTL as:
             public T GetOrCreate(Func&lt;T&gt; factory)
             =&gt; IsExpired ? value = EnsureValue(factory) : value!;
         </Description>
         <PackageTags>Simple;TTL;Cache</PackageTags>
-        <Title>Simple wrapers of vallue with TTL</Title>
-        <AssemblyVersion>0.1.4.4</AssemblyVersion>
-        <Version>0.1.4</Version>
+        <Title>Simple wrappers of vallue with TTL</Title>
+		
+        <AssemblyVersion>8.0.0.5</AssemblyVersion>
+        <Version>8.0.0</Version>
     </PropertyGroup>
 
 </Project>
