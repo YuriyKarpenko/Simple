@@ -27,9 +27,15 @@ and using like a Splat.Locator, but has litle different names
 ```
 
 ##  Release notes
-0.1.2.2
+###	8.0.0.3
+	append:
+		support scope
+		support net8.0
+	update:
+		refactoring
+###	0.1.2.2
 	append:
 		support net6.0
-0.1.1.1		
+###	0.1.1.1		
 	update:
 		Small improvements to the hierarchy of classes

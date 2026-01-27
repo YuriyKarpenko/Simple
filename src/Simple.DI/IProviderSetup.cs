@@ -1,28 +1,35 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace Simple.DI
+namespace Simple.DI;
+
+public interface IProviderSetup<TKey>
 {
-    public interface IProviderSetup<TKey>
-    {
-        /// <summary> Try to registering factory of object </summary>
-        bool TryRegister(TKey key, Func<object?> factory);
+    /// <summary> Try to registering factory of object </summary>
+    bool TryRegister(TKey key, Func<object?> factory);
 
-        /// <summary> Registering factory of object </summary>
-        IProviderSetup<TKey> Register(TKey key, Func<object?> factory);
+    /// <summary> Registering factory of object </summary>
+    void Register(TKey key, Func<object?> factory);
 
-        /// <summary> Create a new <see cref="IProviderSetup"/> based on current (current will not be modified) </summary>
-        IProviderSetup<TKey> CreateScope();
-    }
+    /// <summary> Registering factory of object </summary>
+    void RegisterScoped(TKey key, Func<object?> factory);
 
-    public interface IProviderSetup : IProviderSetup<Type>
-    {
-        /// <summary> Registering factory of object </summary>
-        IProviderSetup Register(Type key, Func<IServiceProvider, object?> factory);
+    /// <summary> Creating IDisposable object to capture scoped resolver </summary>
+    IDisposable CreateScope();
 
-        /// <summary> Creating a type-resolver </summary>
-        IServiceProvider BuildServiceProvider();
+    IEnumerable<object?> GetServices(Predicate<TKey> predicate);
+}
 
-        /// <summary> Create a new <see cref="IProviderSetup"/> based on current (current will not be modified) </summary>
-        new IProviderSetup CreateScope();
-    }
+public interface IProviderSetup : IProviderSetup<Type>, IServiceProvider
+{
+    /// <summary> Registering factory of object with IServiceProvider </summary>
+    void Register(Type key, Func<IServiceProvider, object?> factory);
+
+    /// <summary> Registering factory of object with IServiceProvider </summary>
+    void RegisterScoped(Type key, Func<IServiceProvider, object?> factory);
+
+    IEnumerable<object?> GetServices(Type baseType);
+
+    /// <summary> Creating a type-resolver </summary>
+    IServiceProvider BuildServiceProvider();
 }
