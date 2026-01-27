@@ -16,7 +16,7 @@ public class DicString<T> : Dictionary<string, T>
     public DicString(IDictionary<string, T> kvps, IEqualityComparer<string>? comparer = null)
         : base(kvps, comparer ?? StringComparer.InvariantCultureIgnoreCase) { }
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+#if !NETSTANDARD2_0
     /// <summary> .ctor </summary>
     /// <param name="kvps">Init source</param>
     /// <param name="comparer">Default StringComparer.InvariantCultureIgnoreCase.</param>
