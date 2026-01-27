@@ -1,5 +1,3 @@
-using Simple.Web.Jwt;
-
 namespace Tests.Jwt;
 
 public class Base64UrlEncoderTests : BaseTests

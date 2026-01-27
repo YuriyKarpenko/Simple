@@ -1,8 +1,7 @@
 ﻿using System.Text;
 
 using Simple.Helpers;
-using Simple.Web.Jwt;
-using Simple.Web.Jwt.Algorithms;
+using Simple.Jwt.Algorithms;
 
 namespace Tests.Jwt;
 public class JwtEncoderTests : BaseTests

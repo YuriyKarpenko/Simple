@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simple.Helpers", "src\Simpl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simple.Ttl", "src\Simple.Ttl\Simple.Ttl.csproj", "{130D1FD3-F00C-4325-B43B-4D98CAE69C59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple.Web.Jwt", "src\Simple.Web.Jwt\Simple.Web.Jwt.csproj", "{08327CA8-FF33-43D7-A0B3-7B4EE6514E8E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple.Jwt", "src\Simple.Jwt\Simple.Jwt.csproj", "{08327CA8-FF33-43D7-A0B3-7B4EE6514E8E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{6F17CDC4-898B-4B51-A502-A483000A502B}"
 EndProject

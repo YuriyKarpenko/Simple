@@ -1,6 +1,4 @@
-﻿using Simple.Web.Jwt;
-
-namespace Tests.Jwt;
+﻿namespace Tests.Jwt;
 public class JwtPartsTests
 {
     private static readonly IBase64UrlEncoder _base64UrlEncoder = new Base64UrlEncoder();

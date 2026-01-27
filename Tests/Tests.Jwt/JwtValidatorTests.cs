@@ -1,7 +1,6 @@
 ﻿using System;
 
 using Simple.Helpers;
-using Simple.Web.Jwt;
 
 namespace Tests.Jwt;
 public class JwtValidatorTests
