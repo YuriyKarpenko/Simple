@@ -20,6 +20,6 @@ public class ObserverDebug : ObserverBase<ObserverDebug>
     {
         //return Debugger.IsAttached ?
         Debug.Write($"{message.Level,-9}");
-        Debug.WriteLine(LogManager.MessageFactory.ToStringWithoutLevel(message));
+        Debug.WriteLine(LogManager.MessageFactory.ToStringWithoutLevel(message, false));
     }
 }

@@ -28,11 +28,7 @@ public static class LoggerExtensions
     {
         if (logger.IsEnabled(level))
         {
-            logger.Log(level, 0, (methodName, args: getArgs(), getMethodResult), ex, static (state, _) =>
-                state.getMethodResult is null
-                    ? string.Format(msgFormat_2, state.methodName, state.args)
-                    : string.Format(msgFormat_3, state.methodName, state.args, state.getMethodResult())
-                    );
+            logger.Log(level, 0, (methodName!, args: getArgs(), getMethodResult), ex, FormatMessage);
         }
     }
 
@@ -51,5 +47,17 @@ public static class LoggerExtensions
 
     private const string
         msgFormat_2 = "{0}({1})",
-        msgFormat_3 = "{0}({1}) => {2}";
+        msgFormat_3 = "{0}({1}) => {2}",
+        msgFormat_2_ex = "{0}({1})\n{2}",
+        msgFormat_3_ex = "{0}({1}) => {2}\n{3}";
+
+    private static string FormatMessage((string methodName, string? args, Func<string?>? getMethodResult) state, Exception? ex)
+        => state.getMethodResult is null
+            ? ex is null
+                ? string.Format(msgFormat_2, state.methodName, state.args)
+                : string.Format(msgFormat_2_ex, state.methodName, state.args, ex)
+            : ex is null
+                ? string.Format(msgFormat_3, state.methodName, state.args, state.getMethodResult())
+                : string.Format(msgFormat_3_ex, state.methodName, state.args, state.getMethodResult(), ex)
+            ;
 }

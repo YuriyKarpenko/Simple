@@ -4,6 +4,7 @@ using Simple.Helpers;
 using Simple.Logging.Configuration;
 
 namespace Test.Logging;
+
 public class LogOptionsTests
 {
     private readonly LogOptions svc = LogOptions.Instance;

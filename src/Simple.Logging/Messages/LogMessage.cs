@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Simple.Logging.Messages;
 
-[DebuggerDisplay("{Level,-9} {State} [{LogSource}]")]
+[DebuggerDisplay("{Level}: {State} [{LogSource}]")]
 public readonly struct LogMessage
 {
     public LogMessage(string logSource, LogLevel level, string? message, Exception? exception)

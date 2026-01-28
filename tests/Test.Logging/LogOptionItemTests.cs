@@ -3,6 +3,7 @@
 using Simple.Logging.Configuration;
 
 namespace Test.Logging;
+
 public class LogOptionItemTests
 {
     private readonly LogOptionItem svc = new LogOptionItem(LogLevel.Error);
