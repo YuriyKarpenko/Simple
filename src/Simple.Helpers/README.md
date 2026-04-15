@@ -74,6 +74,8 @@ some other extensions (string, Type)
 
 ### 8.0.2.7
 
+	append:
+		json helpers [JsonConvert, JsonConverterBytesBase64, JsonConverterBytesHex, JsonMerge]
 	update:
 		refactoring Hex Extensions
 		refactoring Options Extensions
