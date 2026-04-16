@@ -15,7 +15,7 @@ public class OptionTests
     [InlineData("2some", true)]
     public void CreateStr(string? value, bool expected)
     {
-        var actual = Option.String(value).Validate(i => i?.StartsWith("2") == true, argName);
+        var actual = Option.String(value).Validate(i => i.StartsWith("2"), argName);
         CreateAssert(actual, value, expected);
     }
 
@@ -91,7 +91,7 @@ public class OptionTests
         var expected = Option.MessageMethodFormat(() => message);
 
         //  test
-        var actual = Option.Error<object>(message);
+        var actual = Option.Error<object>(() => message);
 
         //  assert
         ErrorAssert(actual, expected);
@@ -104,7 +104,7 @@ public class OptionTests
     {
         //  arrange
         var ex = new Exception(message);
-        var expected = $"ErrorException({args}) => {message}";
+        var expected = $"ErrorException({args}) => \n{ex}";
 
         //  test
         var actual = Option.Error<object>(ex, () => args);
@@ -120,7 +120,7 @@ public class OptionTests
     public void ErrorOption(string? message)
     {
         //  arrange
-        var o = Option.Error<int>(message);
+        var o = Option.Error<int>(() => message);
         var expected = Option.MessageMethodFormat(() => message);
 
         //  test
@@ -162,25 +162,28 @@ public class OptionTests
     {
         const int value = 2;
         //  arrange
-        var hasVaue = string.IsNullOrEmpty(error);
+        var hasValue = string.IsNullOrEmpty(error);
+        var ex = new Exception(error);
 
         //  test
-        var actual = Option.Try(() => hasVaue ? value : Throw.Exception<int>(new Exception(error)));
+        var actual = Option.Try(() => hasValue ? value : Throw.Exception<int>(ex));
 
         //  assert
-        Assert.Equal(hasVaue, actual.HasValue);
-        if (hasVaue)
+        Assert.Equal(hasValue, actual.HasValue);
+        if (hasValue)
         {
             Assert.Equal(value, actual.Value);
         }
         else
         {
-            Assert.StartsWith(Option.MessageMethodFormat(() => "Option.Try()", () => $" => {error}"), actual.GetError());
+            var expected = Option.MessageMethodFormat(() => "Option.Try()", () => $"\n{ex}");
+            Assert.Equal(expected, actual.GetError());
         }
     }
 
 
     //  TODO: make other
+
     #region Then
 
     [Theory]

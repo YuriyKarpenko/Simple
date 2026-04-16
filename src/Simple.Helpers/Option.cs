@@ -31,24 +31,25 @@ public static partial class Option
         => new Option<T>(value);
 
     public static IOption<string> String(string? value, [CallerMemberName] string? methodName = null)
-        => string.IsNullOrEmpty(value) ? Empty<string>(null, methodName) : Value<string>(value!);
+        => string.IsNullOrEmpty(value) ? Empty<string>(null, methodName) : Value(value!);
 
     #region Error
 
     public static IOption<T> Error<T>(Func<string?> methodArgs, Func<string?>? methodResult = null, [CallerMemberName] string? methodName = null)
         => new Option<T>(() => MessageMethodFormat(methodArgs, methodResult, methodName));
 
+    [Obsolete]
     public static IOption<T> Error<T>(string? methodArgs, Func<string?>? methodResult = null, [CallerMemberName] string? methodName = null)
         => Error<T>(() => methodArgs, methodResult, methodName);
 
     public static IOption<T> Error<T>(Exception ex, Func<string?> methodArgs, [CallerMemberName] string? methodName = null)
-        => Error<T>(methodArgs, () => $" => {ex.Message}\n{ex}", methodName);
+        => Error<T>(methodArgs, () => $"\n{ex}", methodName);
 
     public static IOption<T> Error<T>(IOption o)
         => new Option<T>(o.GetError);
 
     public static IOption<T> Empty<T>(Func<string?>? methodResult = null, [CallerMemberName] string? methodName = null)
-        => Error<T>(MsgEmpty, methodResult, methodName);
+        => Error<T>(() => MsgEmpty, methodResult, methodName);
 
     #endregion
 
@@ -59,7 +60,7 @@ public static partial class Option
     /// <summary> make message as $"{methodName}({methodArgs}) {methodResult}" </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string MessageMethodFormat(Func<string?> methodArgs, Func<string?>? methodResult = null, [CallerMemberName] string? methodName = null)
-        => string.Format(LogMsgFormat, methodName, methodArgs(), methodResult?.Invoke());
+        => string.Format(LogMsgFormat, methodName, methodArgs(), methodResult == null ? null : " => " + methodResult());
 
     /// <summary> make message as $"{methodName}({methodArgs}) {methodResult}" </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
