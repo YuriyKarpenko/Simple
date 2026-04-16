@@ -17,7 +17,7 @@ public static class CollectionExtensions
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T? GetOrDefault<T>(this IDictionary<string, object> source, string key)
-        => source.TryGetValue(key, out var value) && value is T t ? t : default(T);
+        => source.TryGetValue(key, out var value) && value is T t ? t : default;
 
     public static string AsString<T>(this IEnumerable<T> souce, string separator = ", ")
         => string.Join(separator, souce);
@@ -101,7 +101,8 @@ public static class CollectionExtensions
         return dst;
     }
 
-    public static bool TryGet<TKey, TValue, R>(this IDictionary<TKey, TValue> d, TKey key,
+    public static bool TryGet<TKey, TValue, R>(
+        this IDictionary<TKey, TValue> d, TKey key,
 #if !NETSTANDARD2_0
         [MaybeNullWhen(false)]
 #endif
@@ -117,7 +118,8 @@ public static class CollectionExtensions
         return false;
     }
 
-    public static bool TryGet<TKey, TValue, R>(this IReadOnlyDictionary<TKey, TValue> d, TKey key,
+    public static bool TryGet<TKey, TValue, R>(
+        this IReadOnlyDictionary<TKey, TValue> d, TKey key,
 #if !NETSTANDARD2_0
         [MaybeNullWhen(false)]
 #endif

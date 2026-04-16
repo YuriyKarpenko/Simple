@@ -8,7 +8,7 @@ public class StringTests
     [Theory]
     [InlineData(typeof(List<>), "List<>")]
     [InlineData(typeof(Dictionary<string, List<int>>), "Dictionary<String, List<Int32>>")]
-    void GetClassName(Type type, string expected)
+    private void GetClassName(Type type, string expected)
     {
         //  test
         var actual = type.GetClassName();

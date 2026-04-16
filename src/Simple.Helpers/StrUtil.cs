@@ -14,9 +14,9 @@ public static class StrUtil
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool NotEmpty(
 #if !NETSTANDARD2_0
-        [NotNullWhen(true)] 
+        [NotNullWhen(true)]
 #endif
-    this string? value)
+        this string? value)
         => !string.IsNullOrWhiteSpace(value);
 
     //  utils

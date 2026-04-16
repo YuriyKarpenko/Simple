@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Simple.Helpers;
+
 public static partial class Option
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

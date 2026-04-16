@@ -2,12 +2,13 @@
 using System.Runtime.CompilerServices;
 
 namespace Simple.Helpers;
+
 public static partial class Option
 {
-    public const string LogMsgFormat = "{0}({1}){2}";
-    public const string MsgEmpty = "value is empty";
-    public const string MsgInvalid = "value is not valid";
-    public const string MsgNoError = "no errors!";
+    public const           string    LogMsgFormat   = "{0}({1}){2}";
+    public const           string    MsgEmpty       = "value is empty";
+    public const           string    MsgInvalid     = "value is not valid";
+    public const           string    MsgNoError     = "no errors!";
     public static readonly Exception ValueException = new InvalidOperationException(MsgInvalid);
 
     #region Create
@@ -84,13 +85,13 @@ internal readonly struct Option<T> : IOption<T>
     public Option(Func<string> getError)
     {
         GetError = getError;
-        _value = default!;
+        _value   = default!;
         HasValue = false;
     }
     public Option(T value)
     {
         GetError = () => Option.MsgNoError;
-        _value = value;
+        _value   = value;
         HasValue = true;
     }
 

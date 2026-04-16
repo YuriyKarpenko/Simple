@@ -5,6 +5,7 @@ namespace Test.Helpers;
 public class OptionTests
 {
     private const string argName = "some arg";
+
     #region Create
 
     [Theory]
@@ -198,6 +199,6 @@ public class OptionTests
         Assert.Equal(expected, actual);
     }
 
-
     #endregion
+
 }

@@ -20,8 +20,8 @@ public static class ExtensionsValidation
 
     public static bool IsIp(string ip)
     {
-        const string octet0 = @"([1-9]?\d|1\d\d?|2[0-4]\d|25[0-5])";    //  allow "0" but lock "00"
-        const string octet = @"([1-9]\d?|1\d\d?|2[0-4]\d|25[0-5])";     //  lock "0", "00" ..
+        const string octet0 = @"([1-9]?\d|1\d\d?|2[0-4]\d|25[0-5])"; //  allow "0" but lock "00"
+        const string octet = @"([1-9]\d?|1\d\d?|2[0-4]\d|25[0-5])";  //  lock "0", "00" ..
         return Regex.IsMatch(ip, $@"^{octet}\.({octet0}\.){{2}}{octet}$");
     }
 }

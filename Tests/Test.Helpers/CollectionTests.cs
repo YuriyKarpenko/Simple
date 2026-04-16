@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 namespace Test.Helpers;
+
 public class CollectionTests
 {
     [Theory]
