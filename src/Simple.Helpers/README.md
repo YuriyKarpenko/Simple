@@ -44,38 +44,51 @@ using Simple.Helpers;
 class SomeClass
 {
 ...
-    private async Task<IOption<IResponse>> ExecStatusAsync(ITestResult tr, IRequest request)
-    {
-        var resp = await _rest.ExecuteAsync(request);
-        return tr.Status(resp, HttpStatusCode.Accepted);
-    }
-}	
+	private async Task<IOption<IResponse>> ExecStatusAsync(ITestResult tr, IRequest request)
+	{
+		var resp = await _rest.ExecuteAsync(request);
+		return tr.Status(resp, HttpStatusCode.Accepted);
+	}
+}
 ...
 static class SomeClassExtensions
 {
-    public static IOption<IResponse> Status(this ITestResult tr, IResponse resp, HttpStatusCode expected, [CallerMemberName] string? methodName = null)
-        => tr.Eq(methodName!, resp.StatusCode, expected)
-            ? Option.Value(resp)
-            : Option.Error<IResponse>(resp.Content ?? "bad status");
+	public static IOption<IResponse> Status(this ITestResult tr, IResponse resp, HttpStatusCode expected, [CallerMemberName] string? methodName = null)
+		=> tr.Eq(methodName!, resp.StatusCode, expected)
+			? Option.Value(resp)
+			: Option.Error<IResponse>(resp.Content ?? "bad status");
 }
 ```
 
+## HashCoreCombiner (for netstandard2.0 only)
 
-## HashCoceCombiner (for netstandard2.0 only)
 class (from .NetCore v2.2)
 
 ## Extensions
+
 some extensions for Stream,
-some extensions for collectopns,
+some extensions for collections,
 some other extensions (string, Type)
 
-##  Release notes
-###	8.0.1.6
-		update:
-			refactoring Options Extensions
-		note:
-			changed signatures of some methods!
+## Release notes
+
+### 8.0.2.7
+
+	update:
+		refactoring Hex Extensions
+		refactoring Options Extensions
+	note:
+		changed signatures of some methods!
+
+### 8.0.1.6
+
+	update:
+		refactoring Options Extensions
+	note:
+		changed signatures of some methods!
+
 ### 8.0.0.5
+
 	append:
 		support net8.0
 		StrUtil.GetClassName()
@@ -87,6 +100,7 @@ some other extensions (string, Type)
 		refactoring Throw class
 
 ### 0.1.1.4
+
 	append:
 		support netstandard2.1
 		class DicString
@@ -99,11 +113,13 @@ some other extensions (string, Type)
 		small fixes (in ExtensionsHex, HashCodeCombiner)
 
 ### 0.1.0.3
+
 	update(fixed):
 		added Throw.IsArgumentNullException override (for netstandard2.0)
 		rename Extensions => ExtensionsHex + refactoring ToHexString()
 
 ### 0.1.0.2
+
 	append:
 		Stream.WriteAsync()
 		Extensions (hex convert, IServiceProvider)
@@ -112,6 +128,7 @@ some other extensions (string, Type)
 		added Throw.IsArgumentNullException override
 
 ### 0.1.0.1
+
 	append:
 		TargetFramework: net6.0
 	update:
