@@ -42,11 +42,10 @@ public static class StrUtil
         if (t.IsGenericType)
         {
             var suffix = t.GenericTypeArguments.Select(GetClassName).AsString();
-            var a = t.Name.AsSpan();
-            var end = a.IndexOf('`');
+            var end    = t.Name.IndexOf('`');
 
             return end > 0
-                ? $"{new string(a.ToArray(), 0, end)}<{suffix}>"
+                ? $"{t.Name.Substring(0, end)}<{suffix}>"
                 : $"{t.Name}<{suffix}>";
         }
 

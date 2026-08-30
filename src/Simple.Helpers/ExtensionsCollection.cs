@@ -10,7 +10,7 @@ namespace Simple.Helpers;
 /// <summary>
 /// Containing extensions for the collection objects.
 /// </summary>
-public static class CollectionExtensions
+public static class ExtensionsCollection
 {
     /// <summary>
     /// Returns value if <paramref name="key"/> exists and value is <typeparamref name="T"/> or <code default/>
@@ -19,8 +19,8 @@ public static class CollectionExtensions
     public static T? GetOrDefault<T>(this IDictionary<string, object> source, string key)
         => source.TryGetValue(key, out var value) && value is T t ? t : default;
 
-    public static string AsString<T>(this IEnumerable<T> souce, string separator = ", ")
-        => string.Join(separator, souce);
+    public static string AsString<T>(this IEnumerable<T> source, string separator = ", ")
+        => string.Join(separator, source);
 
     /// <summary>
     /// Converts an <see cref="IDictionary{TKey,TValue}"/> instance to a <see cref="NameValueCollection"/> instance.
@@ -31,11 +31,16 @@ public static class CollectionExtensions
     {
         var collection = new NameValueCollection(source.Count);
 
-        foreach (var key in source.Keys)
+        foreach (var kv in source)
         {
-            foreach (var value in source[key])
+            if (kv.Value is null)
             {
-                collection.Add(key, value);
+                continue; //  skip null values
+            }
+
+            foreach (var value in kv.Value)
+            {
+                collection.Add(kv.Key, value);
             }
         }
 
@@ -49,6 +54,8 @@ public static class CollectionExtensions
     /// <returns>An <see cref="IDictionary{TKey,TValue}"/> instance containing the keys and values from the other instances.</returns>
     public static IDictionary<string, TValue> Merge<TValue>(this IEnumerable<IDictionary<string, TValue>> dictionaries)
     {
+        Throw.IsArgumentNullException(dictionaries, nameof(dictionaries));
+
         var output = new Dictionary<string, TValue>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var dictionary in dictionaries.Where(d => d != null))
@@ -59,6 +66,7 @@ public static class CollectionExtensions
         return output;
     }
 
+#if !NET6_0_OR_GREATER
     /// <summary>
     /// Filters a collection based on a provided key selector.
     /// </summary>
@@ -66,7 +74,7 @@ public static class CollectionExtensions
     /// <param name="keySelector">The predicate to filter by.</param>
     /// <typeparam name="TSource">The type of the collection to filter.</typeparam>
     /// <typeparam name="TKey">The type of the key to filter by.</typeparam>
-    /// <returns>A <see cref="IEnumerable{T}"/> instance with the filtered values.</returns>
+    /// <returns>An <see cref="IEnumerable{T}"/> instance with the filtered values.</returns>
     public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
     {
         var knownKeys = new HashSet<TKey>();
@@ -79,6 +87,7 @@ public static class CollectionExtensions
             }
         }
     }
+#endif
 
     /// <summary>
     /// Fill <paramref name="dst"/> by key and values from <paramref name="overrideValues"/> if key not exists in <paramref name="dst"/> or <paramref name="isOverrideKeys"/> == true
@@ -91,6 +100,9 @@ public static class CollectionExtensions
     /// <returns>Updated <paramref name="dst"/></returns>
     public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> dst, IEnumerable<KeyValuePair<TKey, TValue>> overrideValues, bool isOverrideKeys = true)
     {
+        Throw.IsArgumentNullException(dst, nameof(dst));
+        Throw.IsArgumentNullException(overrideValues, nameof(overrideValues));
+
         foreach (var ov in overrideValues)
         {
             if (isOverrideKeys || !dst.ContainsKey(ov.Key))

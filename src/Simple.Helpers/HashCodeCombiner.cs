@@ -6,7 +6,8 @@ using System.Runtime.CompilerServices;
 namespace Simple.Helpers;
 
 //  from Microsoft.Extensions.FileSystemGlobbing, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60
-public struct HashCodeCombiner
+//  changed to a class: mutable struct had copy-mutation traps (Add on a by-value copy silently lost)
+public sealed class HashCodeCombiner
 {
     private long _combinedHash64;
 
@@ -41,6 +42,26 @@ public struct HashCodeCombiner
         Add(num);
     }
 
+    //  generic overload: avoids boxing elements through the non-generic IEnumerable enumerator
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Add<T>(IEnumerable<T> e)
+    {
+        if (e == null)
+        {
+            Add(0);
+            return;
+        }
+
+        var num = 0;
+        foreach (var item in e)
+        {
+            Add(item is null ? 0 : item.GetHashCode());
+            num++;
+        }
+
+        Add(num);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator int(HashCodeCombiner self)
         => self.CombinedHash;
@@ -66,14 +87,12 @@ public struct HashCodeCombiner
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add<TValue>(TValue value, IEqualityComparer<TValue> comparer)
     {
-        var i = value != null ? comparer.GetHashCode(value) : 0;
+        var i = value != null ? (comparer ?? EqualityComparer<TValue>.Default).GetHashCode(value) : 0;
         Add(i);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashCodeCombiner Start()
-    {
-        return new HashCodeCombiner(5381L);
-    }
+        => new(5381L);
 }
 #endif

@@ -7,13 +7,10 @@ namespace Simple.Helpers;
 
 public class JsonConverterBytesHex : JsonConverter<byte[]?>
 {
+    //  note: JSON escapes are NOT decoded — the raw UTF-8 payload is parsed as hex;
+    //  escaped content (e.g. "A") contains non-hex bytes and throws (FormatException wrapped as JsonException)
     public override byte[]? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.Null)
-        {
-            return null;
-        }
-
         if (reader.TokenType != JsonTokenType.String)
         {
             Throw.Exception(new JsonException($"Expected {JsonTokenType.String}, but got {reader.TokenType}."));
@@ -21,14 +18,27 @@ public class JsonConverterBytesHex : JsonConverter<byte[]?>
 
         if (reader.HasValueSequence)
         {
-            var rented = reader.ValueSequence.ToArray();
+            var sequence = reader.ValueSequence;
+            var length   = checked((int)sequence.Length);
+
+            if (length == 0)
+            {
+                return [];
+            }
+
+            var rented = ArrayPool<byte>.Shared.Rent(length);
             try
             {
-                return rented.Length == 0 ? [] : HexConverter.AsBytes(rented);
+                sequence.CopyTo(rented);
+                return HexConverter.AsBytes(rented.AsSpan(0, length));
             }
-            catch (Exception ex) when (ex is not JsonException)
+            catch (FormatException ex)
             {
                 Throw.Exception(new JsonException("Invalid hex payload.", ex));
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(rented);
             }
         }
 
@@ -38,7 +48,7 @@ public class JsonConverterBytesHex : JsonConverter<byte[]?>
         {
             return span.Length == 0 ? [] : HexConverter.AsBytes(span);
         }
-        catch (Exception ex) when (ex is not JsonException)
+        catch (FormatException ex)
         {
             Throw.Exception(new JsonException("Invalid hex payload.", ex));
         }

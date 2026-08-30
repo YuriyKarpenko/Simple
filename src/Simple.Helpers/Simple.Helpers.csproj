@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<Description>Static throw helper + HashCoceCombiner class (from MS) + some extensions + Option (as in Rust) + Json helpers</Description>
+		<Description>Static throw helper + HashCodeCombiner class (from MS) + some extensions + Json helpers</Description>
 		<PackageTags>Simple;helpers;Stream helper</PackageTags>
 		<Title>Simple helper classes</Title>
 
-		<AssemblyVersion>8.0.2.7</AssemblyVersion>
-		<Version>8.0.2</Version>
+		<AssemblyVersion>8.1.0.8</AssemblyVersion>
+		<Version>8.1.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

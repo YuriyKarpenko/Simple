@@ -15,6 +15,9 @@ public static class ExtensionsHex
     //  Any extensions
     public static object GetServiceRequired(this IServiceProvider sp, Type t)
     {
+        Throw.IsArgumentNullException(sp, nameof(sp));
+        Throw.IsArgumentNullException(t, nameof(t));
+
         var o = sp.GetService(t);
         return Throw.IsArgumentNullException(o, t.Name);
     }
@@ -55,7 +58,10 @@ public static class ExtensionsHex
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ToHexStr(this byte b, bool isLowerCase = false)
-        => new(b.ToHexChars(isLowerCase));
+    {
+        var chars = b.ToHexChars(isLowerCase);
+        return new string(chars);
+    }
 
     public static string ToHexString(this IEnumerable<byte> src, bool isLowerCase = false, string byteSeparator = "")
     {
@@ -70,7 +76,9 @@ public static class ExtensionsHex
             return HexConverter.AsString(a, isLowerCase);
         }
 
-        var sb = new StringBuilder(a.Length * 2 + (a.Length - 1) * byteSeparator.Length);
+        //  long math + clamp: capacity is only a hint, but int overflow must not throw from the ctor
+        var capacity = (int)Math.Min(2L * a.Length + (a.Length - 1L) * byteSeparator.Length, int.MaxValue);
+        var sb       = new StringBuilder(capacity);
         for (var i = 0; i < a.Length; i++)
         {
             if (i > 0)
@@ -78,7 +86,8 @@ public static class ExtensionsHex
                 sb.Append(byteSeparator);
             }
 
-            sb.Append(a[i].ToHexChars(isLowerCase));
+            sb.Append(a[i].HiByte().ToHexChar(isLowerCase));
+            sb.Append(a[i].LoByte().ToHexChar(isLowerCase));
         }
 
         return sb.ToString();
@@ -86,13 +95,34 @@ public static class ExtensionsHex
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte HiByte(this int asByte)
-        => (byte)(asByte >> 4);
+    {
+        if (asByte is < 0 or > 255)
+        {
+            Throw.Exception(new IndexOutOfRangeException($"HiByte(int): {asByte} must be between 0 and 255 inclusive"));
+        }
+
+        return (byte)(asByte >> 4);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte LoByte(this int asByte)
-        => (byte)(asByte & MaskLoByte);
+    {
+        if (asByte is < 0 or > 255)
+        {
+            Throw.Exception(new IndexOutOfRangeException($"LoByte(int): {asByte} must be between 0 and 255 inclusive"));
+        }
+
+        return (byte)(asByte & MaskLoByte);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static char ToHexChar(this int asByte, bool isLowerCase = false)
-        => ToHexChar((byte)asByte, isLowerCase);
+    {
+        if (asByte is < 0 or > 15)
+        {
+            Throw.Exception(new IndexOutOfRangeException($"ToHexChar(int): {asByte} must be between 0 and 15 inclusive"));
+        }
+
+        return ToHexChar((byte)asByte, isLowerCase);
+    }
 }

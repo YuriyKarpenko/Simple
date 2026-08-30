@@ -6,13 +6,10 @@ namespace Simple.Helpers;
 
 public class JsonConverterBytesBase64 : JsonConverter<byte[]?>
 {
+    //  note: JSON escapes are NOT decoded — the raw UTF-8 payload is base64-decoded;
+    //  escaped content is not valid base64 and throws (FormatException wrapped as JsonException)
     public override byte[]? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.Null)
-        {
-            return null;
-        }
-
         if (reader.TokenType != JsonTokenType.String)
         {
             Throw.Exception(new JsonException($"Expected {JsonTokenType.String}, but got {reader.TokenType}."));
@@ -22,7 +19,7 @@ public class JsonConverterBytesBase64 : JsonConverter<byte[]?>
         {
             return reader.GetBytesFromBase64();
         }
-        catch (Exception ex) when (ex is not JsonException)
+        catch (FormatException ex)
         {
             Throw.Exception(new JsonException("Invalid Base64 payload.", ex));
         }

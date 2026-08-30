@@ -6,7 +6,7 @@
 
 namespace Simple.Helpers;
 
-public class HexConverter
+public static class HexConverter
 {
     private static readonly sbyte[] _hexLookup = CreateLookup();
 
@@ -17,7 +17,7 @@ public class HexConverter
 
         for (var i = 0; i < result.Length; i++)
         {
-            var j = i * 2;
+            var j  = i * 2;
             var hi = _hexLookup[utf8Chars[j]];
             var lo = _hexLookup[utf8Chars[j + 1]];
 
@@ -29,25 +29,14 @@ public class HexConverter
         return result;
     }
 
-    public static byte[] AsBytes(ReadOnlySpan<char> chars)
-    {
-        CheckLength(chars.Length);
-        Span<byte> bb = stackalloc byte[chars.Length];
-        for (var i = 0; i < chars.Length; i++)
-        {
-            bb[i] = chars[i] <= byte.MaxValue ? (byte)chars[i] : (byte)0;
-        }
-
-        return AsBytes(bb);
-    }
-    public static byte[] AsBytes2(ReadOnlySpan<char> chars)
+    public static byte[] AsBytes(ReadOnlySpan<char> chars) // allocation-free path; non-ASCII chars → FormatException
     {
         CheckLength(chars.Length);
         var result = new byte[chars.Length / 2];
 
         for (var i = 0; i < result.Length; i++)
         {
-            var j = i * 2;
+            var j  = i * 2;
             var hi = chars[j]     <= byte.MaxValue ? _hexLookup[(byte)chars[j]] : (sbyte)-1;
             var lo = chars[j + 1] <= byte.MaxValue ? _hexLookup[(byte)chars[j + 1]] : (sbyte)-1;
 
@@ -60,12 +49,12 @@ public class HexConverter
     }
 
     public static byte[] AsBytes(string str)
-        => AsBytes(str.AsSpan());
+        => AsBytes(Throw.IsArgumentNullException(str, nameof(str)).AsSpan());
 
     public static char[] AsChars(ReadOnlySpan<byte> bytes, bool isLowerCase = false)
     {
         var chars = new char[bytes.Length * 2];
-        var pos = 0;
+        var pos   = 0;
 
         for (var i = 0; i < bytes.Length; i++)
         {
@@ -86,7 +75,7 @@ public class HexConverter
     {
         if ((length & 1) != 0)
         {
-            Throw.Exception(new Exception("Hex string must have even length"));
+            Throw.Exception(new FormatException("Hex string must have even length"));
         }
     }
 
@@ -94,7 +83,7 @@ public class HexConverter
     {
         if (hi < 0 || lo < 0)
         {
-            Throw.Exception(new Exception("Invalid hex character"));
+            Throw.Exception(new FormatException("Invalid hex character"));
         }
     }
 

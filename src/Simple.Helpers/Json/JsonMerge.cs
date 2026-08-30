@@ -1,55 +1,42 @@
-using System;
+﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text.Json;
 
 namespace Simple.Helpers;
 
-public enum MergeBehavior
-{
-    /// <summary> Try to merge. </summary>
-    Merge,
-
-    /// <summary> Replace from addon. </summary>
-    Replace,
-
-    /// <summary> Leave as master. </summary>
-    Ignore,
-}
-
-public struct JsonMergeOptions()
-{
-    public static readonly JsonMergeOptions Default = new();
-
-    public MergeBehavior ArrayBehavior = MergeBehavior.Replace;
-
-    /// <summary> false = exclude property, true = keep property (default = false). </summary>
-    public bool KeepNullValue;
-
-    public MergeBehavior ObjectBehavior;
-}
-
 #if NET5_0_OR_GREATER
-public class JsonMerge
+public static class JsonMerge
 {
-    public static JsonMergeOptions MergeOptions = JsonMergeOptions.Default;
+    /// <summary> Hard cap for recursive object merges; guards against stack overflow on deep trees. </summary>
+    private const int MaxRecursionDepth = 64;
+
+    /// <summary> Global default options; pass per-call options via <c>jsonMergeOptions</c> instead of mutating this. </summary>
+    public static readonly JsonMergeOptions MergeOptions = JsonMergeOptions.Default;
 
     public static JsonElement MergeFast(ref JsonElement master, JsonElement addon, JsonSerializerOptions? options = null, JsonMergeOptions? jsonMergeOptions = null)
     {
-        Debug.Assert(master.ValueKind == JsonValueKind.Object);
-        Debug.Assert(addon.ValueKind  == JsonValueKind.Object);
+        if (master.ValueKind != JsonValueKind.Object)
+        {
+            Throw.Exception(new JsonException($"MergeFast: master must be an object, but was {master.ValueKind}."));
+        }
+
+        if (addon.ValueKind != JsonValueKind.Object)
+        {
+            Throw.Exception(new JsonException($"MergeFast: addon must be an object, but was {addon.ValueKind}."));
+        }
 
         options ??= JsonConvertMs.JsonOptions;
 
-        var buffer = new ArrayBufferWriter<byte>();
+        //  initial capacity: saves the first ArrayBufferWriter reallocation (0 → geometric growth)
+        var buffer = new ArrayBufferWriter<byte>(256);
         var comparer = options.ToNode().PropertyNameCaseInsensitive
             ? StringComparer.OrdinalIgnoreCase
             : StringComparer.Ordinal;
 
         using (var writer = new Utf8JsonWriter(buffer, options.ToWrite()))
         {
-            WriteMergedObject(writer, master, addon, jsonMergeOptions ?? MergeOptions, comparer);
+            WriteMergedObject(writer, master, addon, jsonMergeOptions ?? MergeOptions, comparer, 0);
         }
 
         var reader = new Utf8JsonReader(buffer.WrittenSpan, options.ToRead());
@@ -60,15 +47,24 @@ public class JsonMerge
     public static JsonElement MergeFast(string? masterJson, string? addonJson, JsonSerializerOptions? options = null, JsonMergeOptions? jsonMergeOptions = null)
     {
         options ??= JsonConvertMs.JsonOptions;
-        var masterEl = JsonConvertMs.ParseEl(masterJson, options.ToDoc());
-        var addonEl = JsonConvertMs.ParseEl(addonJson, options.ToDoc());
 
-        if (string.IsNullOrEmpty(masterJson))
+        var masterIsEmpty = string.IsNullOrEmpty(masterJson);
+        var addonIsEmpty  = string.IsNullOrEmpty(addonJson);
+
+        if (masterIsEmpty && addonIsEmpty)
+        {
+            using var emptyDoc = JsonDocument.Parse("{}");
+            return emptyDoc.RootElement.Clone();
+        }
+
+        var addonEl = addonIsEmpty  ? default : JsonConvertMs.ParseEl(addonJson, options.ToDoc());
+        if (masterIsEmpty)
         {
             return addonEl;
         }
 
-        if (!string.IsNullOrEmpty(addonJson))
+        var masterEl = JsonConvertMs.ParseEl(masterJson, options.ToDoc());
+        if (!addonIsEmpty)
         {
             MergeFast(ref masterEl, addonEl, options, jsonMergeOptions);
         }
@@ -82,33 +78,41 @@ public class JsonMerge
         JsonElement obj1,
         JsonElement obj2,
         JsonMergeOptions opt,
-        StringComparer comparer)
+        StringComparer comparer,
+        int depth)
     {
+        if (depth >= MaxRecursionDepth)
+        {
+            Throw.Exception(new JsonException($"MergeFast: maximum depth of {MaxRecursionDepth} exceeded."));
+        }
+
         writer.WriteStartObject();
 
-        // ⚡ ускоряем lookup (убираем O(n²))
+        // ⚡ ускоряем lookup (убираем O(n²)); дубль-ключи в addon: last-wins (как JsonObject indexer / JS)
         var dict2 = new Dictionary<string, JsonElement>(comparer);
         foreach (var p in obj2.EnumerateObject())
         {
             dict2[p.Name] = p.Value;
         }
 
-        // 1. свойства из obj1
+        //  дубль-ключи в master: пишутся оба вхождения (валидный JSON; при чтении обратно last-wins)
+
+        // 1. properties from obj1
         foreach (var p1 in obj1.EnumerateObject())
         {
             if (!dict2.TryGetValue(p1.Name, out var v2))
             {
-                // нет во втором → пишем как есть
+                // not in the second one → write as-is
                 writer.WritePropertyName(p1.Name);
                 p1.Value.WriteTo(writer);
                 continue;
             }
 
-            // есть в обоих → merge
+            // in both → merge
 
             if (v2.ValueKind == JsonValueKind.Null)
             {
-                // null вставляем явно
+                // write null explicitly
                 if (opt.KeepNullValue)
                 {
                     writer.WritePropertyName(p1.Name);
@@ -123,12 +127,12 @@ public class JsonMerge
 
             if (v1.ValueKind == JsonValueKind.Object && v2.ValueKind == JsonValueKind.Object)
             {
-                // 🔥 рекурсивный deep merge
-                HandleObject(writer, v1, v2, opt, comparer);
+                //  recursive deep merge
+                HandleObject(writer, v1, v2, opt, comparer, depth + 1);
             }
             else if (v1.ValueKind == JsonValueKind.Array && v2.ValueKind == JsonValueKind.Array)
             {
-                // 🔥 рекурсивный deep merge
+                //  recursive deep merge
                 HandleArray(writer, v1, v2, opt);
             }
             else
@@ -137,10 +141,10 @@ public class JsonMerge
                 v2.WriteTo(writer);
             }
 
-            dict2.Remove(p1.Name); // чтобы потом не дублировать
+            dict2.Remove(p1.Name); //  already written — do not duplicate below
         }
 
-        // 2. оставшиеся свойства из obj2 (новые)
+        // 2. remaining (new) properties from obj2
         foreach (var kv in dict2)
         {
             if (kv.Value.ValueKind == JsonValueKind.Null && !opt.KeepNullValue)
@@ -155,7 +159,7 @@ public class JsonMerge
         writer.WriteEndObject();
     }
 
-    private static void HandleObject(Utf8JsonWriter writer, JsonElement v1, JsonElement v2, JsonMergeOptions opt, StringComparer comparer)
+    private static void HandleObject(Utf8JsonWriter writer, JsonElement v1, JsonElement v2, JsonMergeOptions opt, StringComparer comparer, int depth)
     {
         switch (opt.ObjectBehavior)
         {
@@ -168,7 +172,11 @@ public class JsonMerge
                 break;
 
             case MergeBehavior.Merge:
-                WriteMergedObject(writer, v1, v2, opt, comparer);
+                WriteMergedObject(writer, v1, v2, opt, comparer, depth);
+                break;
+
+            default:
+                Throw.Exception(new ArgumentOutOfRangeException(nameof(opt.ObjectBehavior), opt.ObjectBehavior, "MergeFast: unknown ObjectBehavior."));
                 break;
         }
     }
@@ -199,6 +207,10 @@ public class JsonMerge
                 }
 
                 writer.WriteEndArray();
+                break;
+
+            default:
+                Throw.Exception(new ArgumentOutOfRangeException(nameof(opt.ArrayBehavior), opt.ArrayBehavior, "MergeFast: unknown ArrayBehavior."));
                 break;
         }
     }

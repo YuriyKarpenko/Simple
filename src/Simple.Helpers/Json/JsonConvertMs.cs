@@ -8,8 +8,23 @@ using System.Text.Json.Nodes;
 
 namespace Simple.Helpers;
 
-public class JsonConvertMs
+public static class JsonConvertMs
 {
+    /// <summary> Hard cap for recursive merge/diff walks; guards against stack overflow on deep trees. </summary>
+    internal const int MaxRecursionDepth = 64;
+
+    /// <summary>
+    /// Global options used by the obsolete overloads.
+    /// <para>
+    /// Frozen via <see cref="JsonSerializerOptions.MakeReadOnly"/> at type initialization:
+    /// any mutation (<c>Converters.Add</c>, property assignment, ...) throws
+    /// <see cref="InvalidOperationException"/> at the mutation call site — not later,
+    /// inside the first serialization somewhere deep in the call stack.
+    /// </para>
+    /// <para>
+    /// Need custom converters? Use <see cref="CreateOptions"/> and pass the result explicitly.
+    /// </para>
+    /// </summary>
     public static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerOptions.Default)
     {
         // AllowTrailingCommas = true,
@@ -17,7 +32,7 @@ public class JsonConvertMs
         {
             // new System.Text.Json.Serialization.JsonStringEnumConverter(),
         },
-        // Отключает экранирование, оставляя символы как есть
+        // no escaping: characters are written as-is
         Encoder              = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         PropertyNamingPolicy = null,
         // PropertyNameCaseInsensitive = false,
@@ -28,7 +43,18 @@ public class JsonConvertMs
     static JsonConvertMs()
     {
         // JsonOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+
+        //  freeze right away: a late mutation throws here, at the mutation call site,
+        //  not at the first serializer use somewhere deep in the stack
+        JsonOptions.MakeReadOnly();
     }
+
+    /// <summary>
+    /// Returns a fresh mutable copy of <see cref="JsonOptions"/> —
+    /// add custom converters there and pass it explicitly to Serialize/Deserialize.
+    /// </summary>
+    public static JsonSerializerOptions CreateOptions()
+        => new(JsonOptions);
 
     public static T? DeserializeObject<T>(ReadOnlySpan<byte> utf8Json, JsonSerializerOptions options)
         => utf8Json.IsEmpty ? default : JsonSerializer.Deserialize<T>(utf8Json, options);
@@ -36,8 +62,9 @@ public class JsonConvertMs
     public static T? DeserializeObject<T>(ReadOnlySpan<char> json, JsonSerializerOptions options)
         => json.IsEmpty ? default : JsonSerializer.Deserialize<T>(json, options);
 
+    //  whitespace-only strings go to the parser and throw JsonException
     public static T? DeserializeObject<T>(string? json, JsonSerializerOptions options)
-        => string.IsNullOrWhiteSpace(json) ? default : DeserializeObject<T>(json.AsSpan(), options);
+        => string.IsNullOrEmpty(json) ? default : DeserializeObject<T>(json.AsSpan(), options);
 
     [Obsolete("Use options explicitly instead")]
     public static T? DeserializeObject<T>(string? json)
@@ -62,7 +89,7 @@ public class JsonConvertMs
     public static JsonObject CreateObject(JsonElement element, JsonNodeOptions options)
         => element.ValueKind == JsonValueKind.Object
             ? JsonObject.Create(element, options)!
-            : new JsonObject(options);
+            : Throw.Exception<JsonObject>(new JsonException($"CreateObject: expected a JSON object, but was {element.ValueKind}."));
 
     [Obsolete("Use options explicitly instead")]
     public static JsonObject CreateObject(JsonElement element)
@@ -72,7 +99,7 @@ public class JsonConvertMs
     public static JsonObject FromObject<T>(T? o, JsonSerializerOptions options)
         => o is null
             ? new JsonObject(options.ToNode())
-            : JsonSerializer.SerializeToNode(o, options) as JsonObject ?? new JsonObject(options.ToNode());
+            : AsObject(JsonSerializer.SerializeToNode(o, options), nameof(FromObject));
 
     [Obsolete("Use options explicitly instead")]
     public static JsonObject FromObject<T>(T? o)
@@ -87,12 +114,13 @@ public class JsonConvertMs
     public static JsonDocument ParseDoc(ReadOnlyMemory<char> json, JsonDocumentOptions options)
         => JsonDocument.Parse(json, options);
 
-    public static JsonDocument ParseDoc(string json, JsonDocumentOptions options)
-        => ParseDoc(json.AsMemory(), options);
+    public static JsonDocument ParseDoc(string? json, JsonDocumentOptions options)
+        => json is null
+            ? Throw.Exception<JsonDocument>(new ArgumentNullException(nameof(json)))
+            : ParseDoc(json.AsMemory(), options);
 
-    [Obsolete("Use options explicitly instead")]
-    public static JsonDocument ParseDoc(string json)
-        => ParseDoc(json.AsMemory(), JsonOptions.ToDoc());
+    public static JsonDocument ParseDoc(string? json)
+        => ParseDoc(json, JsonOptions.ToDoc());
 
     //  element
     public static JsonElement ParseEl(ReadOnlyMemory<byte> utf8Json, JsonDocumentOptions options)
@@ -118,17 +146,17 @@ public class JsonConvertMs
     public static JsonObject ParseObj(ReadOnlySpan<byte> utf8Json, JsonSerializerOptions options)
         => utf8Json.IsEmpty
             ? new JsonObject(options.ToNode())
-            : JsonNode.Parse(utf8Json, options.ToNode(), options.ToDoc()) as JsonObject ?? new JsonObject(options.ToNode());
+            : AsObject(JsonNode.Parse(utf8Json, options.ToNode(), options.ToDoc()), nameof(ParseObj));
 
     public static JsonObject ParseObj(string? json, JsonSerializerOptions options)
         => string.IsNullOrEmpty(json)
             ? new JsonObject(options.ToNode())
-            : JsonNode.Parse(json, options.ToNode(), options.ToDoc()) as JsonObject ?? new JsonObject(options.ToNode());
+            : AsObject(JsonNode.Parse(json!, options.ToNode(), options.ToDoc()), nameof(ParseObj));
 
-    // public static JsonObject ParseObj(string? json, JsonNodeOptions options)
-    //     => string.IsNullOrEmpty(json)
-    //         ? new JsonObject(options)
-    //         : JsonNode.Parse(json, options) as JsonObject ?? new JsonObject(options);
+    private static JsonObject AsObject(JsonNode? node, string method)
+        => node is JsonObject obj
+            ? obj
+            : Throw.Exception<JsonObject>(new JsonException($"{method}: expected a JSON object, but was {(node is null ? JsonValueKind.Null : node.GetValueKind())}."));
 
     [Obsolete("Use options explicitly instead")]
     public static JsonObject ParseObj(string? json)
@@ -141,27 +169,35 @@ public class JsonConvertMs
     [Obsolete("Use JsonMerge.MergeFast() instead")]
     public static void Merge(JsonObject master, JsonObject addon)
     {
-        try
-        {
-            Throw.IsArgumentNullException(master, nameof(master));
-            Throw.IsArgumentNullException(addon, nameof(addon));
+        Throw.IsArgumentNullException(master, nameof(master));
+        Throw.IsArgumentNullException(addon, nameof(addon));
 
-            foreach (var kv in addon)
-            {
-                if (master[kv.Key] is JsonObject mObj && kv.Value is JsonObject aObj)
-                {
-                    Merge(mObj, aObj);
-                }
-                else
-                {
-                    // Replace (аналог MergeArrayHandling.Replace)
-                    master[kv.Key] = kv.Value?.DeepClone();
-                }
-            }
-        }
-        catch (Exception ex)
+        if (ReferenceEquals(master, addon))
         {
-            throw new Exception($"tf {nameof(JsonConvertMs)}.{nameof(Merge)}(addon)", ex);
+            return; //  merging an object into itself is a no-op
+        }
+
+        MergeCore(master, addon, 0);
+    }
+
+    private static void MergeCore(JsonObject master, JsonObject addon, int depth)
+    {
+        if (depth >= MaxRecursionDepth)
+        {
+            Throw.Exception(new JsonException($"Merge: maximum depth of {MaxRecursionDepth} exceeded."));
+        }
+
+        foreach (var kv in addon)
+        {
+            if (master[kv.Key] is JsonObject mObj && kv.Value is JsonObject aObj)
+            {
+                MergeCore(mObj, aObj, depth + 1);
+            }
+            else
+            {
+                // Replace (like MergeArrayHandling.Replace)
+                master[kv.Key] = kv.Value?.DeepClone();
+            }
         }
     }
 
@@ -205,17 +241,25 @@ public static class ExtensionsSystemTextJson
     public static JsonWriterOptions ToWrite(this JsonSerializerOptions options)
         => new()
         {
-            Encoder        = options.Encoder,
-            Indented       = options.WriteIndented,
-            MaxDepth       = options.MaxDepth,
-            SkipValidation = true,
+            Encoder  = options.Encoder,
+            Indented = options.WriteIndented,
+            MaxDepth = options.MaxDepth,
+            //  SkipValidation stays false (default): the writer validates the output structure —
+            //  broken JSON is worse than the micro-perf cost of validation
         };
 
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     public static JsonObject FindDiff(this JsonNode? jCurrent, JsonNode? jOld, JsonNodeOptions? options = null)
+        => FindDiffCore(jCurrent, jOld, options ?? JsonConvertMs.JsonOptions.ToNode(), 0);
+
+    private static JsonObject FindDiffCore(JsonNode? jCurrent, JsonNode? jOld, JsonNodeOptions nOpt, int depth)
     {
-        var nOpt = options ?? JsonConvertMs.JsonOptions.ToNode();
+        if (depth >= JsonConvertMs.MaxRecursionDepth)
+        {
+            Throw.Exception(new JsonException($"FindDiff: maximum depth of {JsonConvertMs.MaxRecursionDepth} exceeded."));
+        }
+
         var diff = new JsonObject(nOpt);
         if (JsonNode.DeepEquals(jCurrent, jOld))
         {
@@ -224,26 +268,32 @@ public static class ExtensionsSystemTextJson
 
         if (jCurrent is JsonObject oCurrent && jOld is JsonObject oOld)
         {
-            var namesCurrent = oCurrent.Select(p => p.Key).ToHashSet();
-            var namesOld = oOld.Select(p => p.Key).ToHashSet();
+            //  name case-handling follows the node option: with PropertyNameCaseInsensitive
+            //  "Key" and "key" are the same key for both the serializer and the diff
+            var nameComparer = nOpt.PropertyNameCaseInsensitive
+                ? StringComparer.OrdinalIgnoreCase
+                : StringComparer.Ordinal;
 
-            foreach (var k in namesOld.Except(namesCurrent))
+            var namesCurrent = oCurrent.Select(p => p.Key).ToHashSet(nameComparer);
+            var namesOld     = oOld.Select(p => p.Key).ToHashSet(nameComparer);
+
+            foreach (var k in namesOld.Except(namesCurrent, nameComparer))
             {
                 diff[k] = new JsonObject(nOpt) { ["-"] = oOld[k]?.DeepClone() };
             }
 
-            var added = namesCurrent.Except(namesOld).ToArray();
+            var added = namesCurrent.Except(namesOld, nameComparer).ToArray();
             foreach (var k in added)
             {
                 diff[k] = new JsonObject(nOpt) { ["+"] = oCurrent[k]?.DeepClone() };
             }
 
             var unchanged = namesCurrent.Where(k => JsonNode.DeepEquals(oCurrent[k], oOld[k])).ToArray();
-            var modified = namesCurrent.Except(added).Except(unchanged);
+            var modified  = namesCurrent.Except(added, nameComparer).Except(unchanged, nameComparer);
 
             foreach (var k in modified)
             {
-                var d = FindDiff(oCurrent[k], oOld[k], nOpt);
+                var d = FindDiffCore(oCurrent[k], oOld[k], nOpt, depth + 1);
                 if (d.Count > 0)
                 {
                     diff[k] = d;
@@ -252,17 +302,21 @@ public static class ExtensionsSystemTextJson
         }
         else if (jCurrent is JsonArray aCurrent && jOld is JsonArray aOld)
         {
-            var minus = aOld
-                .Where(o => o != null && !aCurrent.Any(c => JsonNode.DeepEquals(c, o)))
-                .Cast<JsonNode>().ToArray();
+            //  presence semantics (like before), but O(n+m) via JSON-string keys instead of O(n·m) DeepEquals scan;
+            //  caveat: equal objects with different property order now count as different (keys are serialized forms)
+            var currentItems = aCurrent.Where(n => n != null).Select(n => (Node: n!, Key: n!.ToJsonString())).ToArray();
+            var oldItems     = aOld.Where(n => n     != null).Select(n => (Node: n!, Key: n!.ToJsonString())).ToArray();
+
+            var currentKeys = currentItems.Select(i => i.Key).ToHashSet(StringComparer.Ordinal);
+            var oldKeys     = oldItems.Select(i => i.Key).ToHashSet(StringComparer.Ordinal);
+
+            var minus = oldItems.Where(i => !currentKeys.Contains(i.Key)).Select(i => i.Node).ToArray();
             if (minus.Length > 0)
             {
                 diff["-"] = new JsonArray(nOpt, minus.Select(i => i.DeepClone()).ToArray());
             }
 
-            var plus = aCurrent
-                .Where(c => c != null && !aOld.Any(o => JsonNode.DeepEquals(c, o)))
-                .Cast<JsonNode>().ToArray();
+            var plus = currentItems.Where(i => !oldKeys.Contains(i.Key)).Select(i => i.Node).ToArray();
             if (plus.Length > 0)
             {
                 diff["+"] = new JsonArray(nOpt, plus.Select(i => i.DeepClone()).ToArray());
