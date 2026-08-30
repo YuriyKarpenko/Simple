@@ -52,6 +52,31 @@ public class ExtensionsHexTests
     }
 
     [Fact]
+    public void ToHexString_Empty_ReturnsEmptyString()
+    {
+        Assert.Equal(string.Empty, Array.Empty<byte>().ToHexString());
+    }
+
+    [Fact]
+    public void IntOverloads_HiByte_LoByte_Work()
+    {
+        Assert.Equal((byte)0x0A, 0xAB.HiByte());
+        Assert.Equal((byte)0x0B, 0xAB.LoByte());
+        Assert.Equal((byte)0x0F, 255.LoByte());
+    }
+
+    [Fact]
+    public void IntOverloads_OutOfRange_Throws()
+    {
+        Assert.Throws<IndexOutOfRangeException>(() => 256.HiByte());
+        Assert.Throws<IndexOutOfRangeException>(() => (-1).HiByte());
+        Assert.Throws<IndexOutOfRangeException>(() => 256.LoByte());
+        Assert.Throws<IndexOutOfRangeException>(() => (-1).LoByte());
+        Assert.Throws<IndexOutOfRangeException>(() => 16.ToHexChar());
+        Assert.Throws<IndexOutOfRangeException>(() => (-1).ToHexChar());
+    }
+
+    [Fact]
     public void GetServiceRequired_ReturnsService_AndThrowsWhenMissing()
     {
         var sp = Substitute.For<IServiceProvider>();
@@ -60,5 +85,14 @@ public class ExtensionsHexTests
         Assert.Equal("hello", sp.GetServiceRequired<string>());
         Assert.Equal("hello", sp.GetServiceRequired(typeof(string)));
         Assert.Throws<ArgumentNullException>(() => sp.GetServiceRequired(typeof(int)));
+    }
+
+    [Fact]
+    public void GetServiceRequired_NullProviderOrType_Throws()
+    {
+        var sp = Substitute.For<IServiceProvider>();
+
+        Assert.Throws<ArgumentNullException>(() => ((IServiceProvider)null!).GetServiceRequired(typeof(string)));
+        Assert.Throws<ArgumentNullException>(() => sp.GetServiceRequired((Type)null!));
     }
 }

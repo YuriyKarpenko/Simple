@@ -1,32 +1,32 @@
 <Project>
 
-    <PropertyGroup>
-        <ImplicitUsings>disable</ImplicitUsings>
-        <LangVersion>latest</LangVersion>
-        <Nullable>enable</Nullable>
-        <TargetFramework>net8.0</TargetFramework>
+	<PropertyGroup>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<TargetFramework>net8.0</TargetFramework>
 
-        <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
-    </PropertyGroup>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-        <PackageReference Include="xunit" Version="2.9.3" />
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
+		<PackageReference Include="xunit" Version="2.9.3"/>
 
-        <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.1">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
 
-        <PackageReference Include="coverlet.collector" Version="6.0.4">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
+		<PackageReference Include="coverlet.collector" Version="6.0.4">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
 
-        <PackageReference Include="NSubstitute" Version="5.3.0"/>
+		<PackageReference Include="NSubstitute" Version="5.3.0"/>
 
-        <Using Include="NSubstitute"/>
-        <Using Include="Xunit"/>
-    </ItemGroup>
+		<Using Include="NSubstitute"/>
+		<Using Include="Xunit"/>
+	</ItemGroup>
 </Project>

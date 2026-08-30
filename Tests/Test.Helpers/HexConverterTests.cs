@@ -10,7 +10,7 @@ public class HexConverterTests
     {
         var source = new byte[] { 0x01, 0xAB, 0xFF };
 
-        var hex = HexConverter.AsString(source);
+        var hex   = HexConverter.AsString(source);
         var bytes = HexConverter.AsBytes(hex.GetBytes());
 
         Assert.Equal("01ABFF", hex);
@@ -36,16 +36,29 @@ public class HexConverterTests
     }
 
     [Fact]
+    public void AsBytes_FromNullString_Throws()
+    {
+        Assert.Throws<ArgumentNullException>(() => HexConverter.AsBytes((string)null!));
+    }
+
+    [Fact]
     public void AsBytes_OddLength_Throws()
     {
-        var ex = Assert.Throws<Exception>(() => HexConverter.AsBytes("ABC"));
+        var ex = Assert.Throws<FormatException>(() => HexConverter.AsBytes("ABC"));
         Assert.Contains("even length", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
     public void AsBytes_InvalidChar_Throws()
     {
-        var ex = Assert.Throws<Exception>(() => HexConverter.AsBytes("GG"));
+        var ex = Assert.Throws<FormatException>(() => HexConverter.AsBytes("GG"));
+        Assert.Contains("Invalid hex", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void AsBytes_NonAscii_Throws()
+    {
+        var ex = Assert.Throws<FormatException>(() => HexConverter.AsBytes("Привет"));
         Assert.Contains("Invalid hex", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 

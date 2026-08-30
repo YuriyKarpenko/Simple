@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\src\Simple.Helpers\Simple.Helpers.csproj" />
+		<ProjectReference Include="..\..\src\Simple.Helpers\Simple.Helpers.csproj"/>
 	</ItemGroup>
 
 	<ItemGroup>
-		<Using Include="Simple.Helpers" />
+		<Using Include="Simple.Helpers"/>
 	</ItemGroup>
 
 </Project>
