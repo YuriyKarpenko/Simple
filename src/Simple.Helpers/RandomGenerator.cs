@@ -6,16 +6,15 @@ namespace Simple.Helpers;
 
 public static class RandomGenerator
 {
-    public const string CharsAllLower = "abcdefghijklmnopqrstuvwxyz1234567890";
-    public const string CharsAllUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+    public const string CharsAllLower        = "abcdefghijklmnopqrstuvwxyz1234567890";
+    public const string CharsAllUpper        = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     public const string CharsAlphabeticLower = "abcdefghijklmnopqrstuvwxyz";
     public const string CharsAlphabeticUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    public const string CharsDigital = "1234567890";
-    public const string CharsHexLower = "abcdef1234567890";
-    public const string CharsHexUpper = "ABCDEF1234567890";
+    public const string CharsDigital         = "1234567890";
+    public const string CharsHexLower        = "abcdef1234567890";
+    public const string CharsHexUpper        = "ABCDEF1234567890";
 
 #if NETSTANDARD2_0
-
     public static Random Random = new Random(DateTimeOffset.Now.Second);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -54,7 +53,7 @@ public static class RandomGenerator
         AlphabeticUpper,
         Digital,
         HexLower,
-        HexUpper
+        HexUpper,
     }
 
     /// <summary> Creates a string populated with characters chosen at random from choices. </summary>
@@ -73,7 +72,7 @@ public static class RandomGenerator
             CharOptions.Digital => CharsDigital,
             CharOptions.HexLower => CharsHexLower,
             CharOptions.HexUpper => CharsHexUpper,
-            _ => Throw.Exception<string>(new ArgumentOutOfRangeException("options"))
+            _ => Throw.Exception<string>(new ArgumentOutOfRangeException("options")),
         };
 
         GetItemsCore(choices, destination);

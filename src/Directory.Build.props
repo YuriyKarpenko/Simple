@@ -1,23 +1,23 @@
 <Project>
 
-    <PropertyGroup>    
-        <LangVersion>latest</LangVersion>
-        <Nullable>enable</Nullable>
-        <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0</TargetFrameworks>
-        <PackageOutputPath>..\..\Release\$(MSBuildProjectName)\</PackageOutputPath>
-    
-        <Authors>mail@yk.cc.ua</Authors>
-        <Company>YK</Company>
-        <Copyright>Copyright YK.</Copyright>
-        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-        <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageProjectUrl>https://github.com/YuriyKarpenko/Simple</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
-    </PropertyGroup>
+	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0</TargetFrameworks>
+		<PackageOutputPath>..\..\Release\$(MSBuildProjectName)\</PackageOutputPath>
 
-    <ItemGroup>
-        <None Include="README.md" Pack="True" PackagePath="\" />
-    </ItemGroup>
+		<Authors>mail@yk.cc.ua</Authors>
+		<Company>YK</Company>
+		<Copyright>Copyright YK.</Copyright>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageProjectUrl>https://github.com/YuriyKarpenko/Simple</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/YuriyKarpenko/Simple</RepositoryUrl>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="True" PackagePath="\"/>
+	</ItemGroup>
 
 </Project>

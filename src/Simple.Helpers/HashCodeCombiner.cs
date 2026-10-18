@@ -13,10 +13,7 @@ public struct HashCodeCombiner
     public int CombinedHash
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get
-        {
-            return _combinedHash64.GetHashCode();
-        }
+        get => _combinedHash64.GetHashCode();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -46,15 +43,11 @@ public struct HashCodeCombiner
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator int(HashCodeCombiner self)
-    {
-        return self.CombinedHash;
-    }
+        => self.CombinedHash;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(int i)
-    {
-        _combinedHash64 = ((_combinedHash64 << 5) + _combinedHash64) ^ i;
-    }
+        => _combinedHash64 = (_combinedHash64 << 5) + _combinedHash64 ^ i;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(string s)
@@ -73,7 +66,7 @@ public struct HashCodeCombiner
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add<TValue>(TValue value, IEqualityComparer<TValue> comparer)
     {
-        var i = ((value != null) ? comparer.GetHashCode(value) : 0);
+        var i = value != null ? comparer.GetHashCode(value) : 0;
         Add(i);
     }
 

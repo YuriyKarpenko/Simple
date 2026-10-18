@@ -8,27 +8,37 @@ public class DicString<T> : Dictionary<string, T>
     /// <summary> .ctor </summary>
     /// <param name="comparer">Default StringComparer.InvariantCultureIgnoreCase.</param>
     public DicString()
-        : base(StringComparer.InvariantCultureIgnoreCase) { }
+        : base(StringComparer.InvariantCultureIgnoreCase)
+    {
+    }
 
     public DicString(IEqualityComparer<string> comparer)
-        : base(comparer) { }
+        : base(comparer)
+    {
+    }
 
     public DicString(IDictionary<string, T> kvps, IEqualityComparer<string>? comparer = null)
-        : base(kvps, comparer ?? StringComparer.InvariantCultureIgnoreCase) { }
+        : base(kvps, comparer ?? StringComparer.InvariantCultureIgnoreCase)
+    {
+    }
 
 #if !NETSTANDARD2_0
     /// <summary> .ctor </summary>
     /// <param name="kvps">Init source</param>
     /// <param name="comparer">Default StringComparer.InvariantCultureIgnoreCase.</param>
     public DicString(IEnumerable<KeyValuePair<string, T>> kvps, IEqualityComparer<string>? comparer = null)
-        : base(kvps, comparer ?? StringComparer.InvariantCultureIgnoreCase) { }
+        : base(kvps, comparer ?? StringComparer.InvariantCultureIgnoreCase)
+    {
+    }
 #endif
 
     /// <summary> .ctor </summary>
     /// <param name="capacity">The initial number of elements that the Dictionary can contain</param>
     /// <param name="comparer">Default StringComparer.InvariantCultureIgnoreCase.</param>
     public DicString(int capacity, IEqualityComparer<string>? comparer = null)
-        : base(capacity, comparer ?? StringComparer.InvariantCultureIgnoreCase) { }
+        : base(capacity, comparer ?? StringComparer.InvariantCultureIgnoreCase)
+    {
+    }
 
 
     /// <summary> Filtering keys according to the specified enum + convert string-key to enum </summary>
