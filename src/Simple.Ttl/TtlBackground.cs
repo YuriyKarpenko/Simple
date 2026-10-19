@@ -1,78 +1,77 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace TF.Simple.Ttl;
+namespace Simple.Ttl;
 
-public class TtlBackground<T> : IDisposable
+/// <summary> Background value with periodic refresh: the factory runs on a timer, callers only read
+/// <see cref="Value"/>; refresh exceptions never reach the thread pool. </summary>
+public class TtlBackground<TArg, T> : IDisposable
 {
-    private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
-    private readonly TimeSpan _ttl;
-    private readonly Func<Task<T>> _factory;
+    private readonly CancellationTokenSource _cts = new();
+    private readonly CancellationToken       _ct;
+    private readonly TArg                    _arg;
+    private readonly Func<TArg, T>           _factory;
+    private readonly Timer                   _timer;
 
-    public TtlBackground(TimeSpan ttl, Func<Task<T>> factoryAsync)
+    //  atomic reference publication: no torn reads for structs, no stale reads for references
+    private object? _value;
+    private int     _running;
+
+    /// <summary> Creates the value once with <paramref name="factory"/>, then refreshes it every <paramref name="ttl"/>. </summary>
+    public TtlBackground(TimeSpan ttl, TArg arg, Func<TArg, T> factory)
     {
-        _ttl = ttl;
-        _factory = factoryAsync;
-        Value = _factory();
-        _ = Processing(_tokenSource.Token);
+        _ct      = _cts.Token;
+        _arg     = arg;
+        _factory = factory;
+        _value   = _factory(arg);
+        _timer   = new Timer(Processing, null, ttl, ttl);
     }
 
-    public Task<T> Value { get; private set; }
+    /// <summary> The latest published value; safe to read from any thread (atomic reference read). </summary>
+    public T Value => (T)Volatile.Read(ref _value)!;
 
+    private Exception? _lastError;
+
+    /// <summary> The failure of the last refresh; null before the first failure and after a successful refresh. </summary>
+    public Exception? LastRefreshError => Volatile.Read(ref _lastError);
+
+    private bool _disposed;
+
+    /// <summary> Stops the timer and cancels the token; idempotent. </summary>
     public void Dispose()
     {
-        _tokenSource.Cancel();
-    }
-
-
-    private async Task Processing(CancellationToken token)
-    {
-        while (await WaitAsync(_ttl, token))
+        if (!_disposed)
         {
-            var v = await _factory();
-            Value = Task.FromResult(v);
+            _timer.Dispose();
+            _cts.Cancel();
+            _cts.Dispose();
+            _disposed = true;
         }
-    }
 
-    public static async Task<bool> WaitAsync(TimeSpan ttl, CancellationToken token)
-    {
-        await Task.Delay(ttl, token);
-        return !token.IsCancellationRequested;
-    }
-}
-
-#if NET6_0_OR_GREATER
-public class TtlBackgroundTimer<T> : IDisposable
-{
-    private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
-    private readonly PeriodicTimer _timer;
-    private readonly Func<Task<T>> _factory;
-
-    public TtlBackgroundTimer(TimeSpan ttl, Func<Task<T>> factoryAsync)
-    {
-        _timer = new PeriodicTimer(ttl);
-        _factory = factoryAsync;
-        Value = new ValueTask<T>(_factory());
-        _ = Processing(_tokenSource.Token);
-    }
-
-    public ValueTask<T> Value { get; private set; }
-
-    public void Dispose()
-    {
-        _tokenSource.Cancel();
-        _timer.Dispose();
+        GC.SuppressFinalize(this);
     }
 
 
-    private async Task Processing(CancellationToken token)
+    private void Processing(object? _)
     {
-        while (await _timer.WaitForNextTickAsync(token))
+        //  reentrancy guard: a factory longer than the period must not start a parallel tick
+        if (_ct.IsCancellationRequested || Interlocked.CompareExchange(ref _running, 1, 0) != 0)
         {
-            var v = await _factory();
-            Value = ValueTask.FromResult(v);
+            return;
+        }
+
+        try
+        {
+            Volatile.Write(ref _value, _factory(_arg));
+            Volatile.Write(ref _lastError, null);
+        }
+        catch (Exception ex)
+        {
+            Volatile.Write(ref _lastError, ex);
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _running, 0);
         }
     }
 }
-#endif
