@@ -2,6 +2,7 @@
 
 namespace Simple.DI;
 
+/// <summary> Application-wide service locator over the shared <see cref="Resolver" /> </summary>
 public class Locator
 {
     private static readonly Resolver _instance = new();
@@ -15,17 +16,12 @@ public class Locator
     /// <summary> Allows registering the application's service factory <see cref="IProviderSetup" /> </summary>
     public static IServiceProvider Setup(Action<IProviderSetup> act)
     {
+        if (act == null)
+        {
+            throw new ArgumentNullException(nameof(act));
+        }
+
         act(_instance);
         return _instance;
     }
-
-
-    #region IServiceProvider
-
-    //  Replacing the key from 'ILogget<T>' on 'ILogget<>'
-    [Obsolete("Will be removed")]
-    public object? GetServiceGeneric(Type key)
-        => _instance.GetService(key.IsGenericType ? key.GetGenericTypeDefinition() : key);
-
-    #endregion
 }

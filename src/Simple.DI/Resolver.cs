@@ -4,14 +4,17 @@ using System.Collections.Generic;
 
 namespace Simple.DI;
 
-public class Resolver<TKey>(Resolver<TKey>? parentResolver) : IProviderSetup<TKey> where TKey : notnull
+/// <summary> Key-based service resolver: registry with parent-chain fallback and AsyncLocal scopes; scope owns disposable tracking </summary>
+public class Resolver<TKey>(Resolver<TKey>? parentResolver = null) : IProviderSetup<TKey> where TKey : notnull
 {
-    protected static readonly ScopeProvider<Resolver<TKey>> _scopeProvider = new();
+    /// <summary> Scope stack of this container (per-instance, flows with the async execution context) </summary>
+    protected readonly ScopeProvider<Resolver<TKey>> _scopeProvider = new();
 
-    private readonly Resolver<TKey>? _parentResolver = parentResolver;
-    private readonly ConcurrentDictionary<TKey, Func<object?>> _registry = new();
+    private readonly Resolver<TKey>?                           _parentResolver = parentResolver;
+    private readonly ConcurrentDictionary<TKey, Func<object?>> _registry       = new();
 
 
+    /// <summary> Resolver of the current AsyncLocal scope, or this when no scope is active </summary>
     public Resolver<TKey> ResolverScoped => _scopeProvider.Current ?? this;
 
 
@@ -29,7 +32,7 @@ public class Resolver<TKey>(Resolver<TKey>? parentResolver) : IProviderSetup<TKe
             }
             r = r._parentResolver;
         }
-        return _parentResolver?.GetService(key);
+        return null;
     }
 
     #endregion
@@ -42,22 +45,20 @@ public class Resolver<TKey>(Resolver<TKey>? parentResolver) : IProviderSetup<TKe
 
     /// <inheritdoc />
     public virtual bool TryRegister(TKey key, Func<object?> factory)
-    {
-        if (_registry.TryGetValue(key, out _))
-        {
-            return false;
-        }
-        Register(key, factory);
-        return true;
-    }
+        => _registry.TryAdd(key, factory);
 
     /// <inheritdoc />
-    public virtual void Register(TKey key, Func<object?> factory) 
+    public virtual void Register(TKey key, Func<object?> factory)
         => _registry[key] = factory;
 
+    /// <summary> Registers the factory in the current scope; created IDisposable instances are tracked by the scope and disposed with it </summary>
     public virtual void RegisterScoped(TKey key, Func<object?> factory)
-        => ResolverScoped.Register(key, factory);
+    {
+        var scope = _scopeProvider.CurrentScope;
+        ResolverScoped.Register(key, scope != null ? Track(factory, scope.Track) : factory);
+    }
 
+    /// <summary> Enumerates services matching the predicate over the current scope chain </summary>
     public IEnumerable<object?> GetServices(Predicate<TKey> predicate)
     {
         foreach (var res in AllResolvers())
@@ -65,9 +66,9 @@ public class Resolver<TKey>(Resolver<TKey>? parentResolver) : IProviderSetup<TKe
             var reg = res._registry;
             foreach (var t in reg.Keys)
             {
-                if (predicate(t))
+                if (predicate(t) && reg.TryGetValue(t, out var factory))
                 {
-                    yield return reg[t]();
+                    yield return factory();
                 }
             }
         }
@@ -75,37 +76,61 @@ public class Resolver<TKey>(Resolver<TKey>? parentResolver) : IProviderSetup<TKe
 
     #endregion
 
+    /// <summary> Yields this resolver followed by its parent chain </summary>
     protected IEnumerable<Resolver<TKey>> AllResolvers()
     {
         var res = ResolverScoped;
         while (res != null)
         {
             yield return res;
+
             res = res._parentResolver;
         }
     }
+
+    private static Func<object?> Track(Func<object?> factory, Action<object?> track)
+        => () =>
+        {
+            var instance = factory();
+            track(instance);
+            return instance;
+        };
 }
 
+/// <summary> Type-keyed resolver: <see cref="IServiceProvider" /> with scopes, parent-chain fallback and scope-owned disposable tracking </summary>
 public class Resolver(Resolver? parentResolver = null) : Resolver<Type>(parentResolver), IProviderSetup, IServiceProvider
 {
-    public Resolver ScopedSp => (Resolver)base.ResolverScoped;
+    /// <summary> Resolver of the current scope, cast to the non-generic type </summary>
+    public Resolver ScopedSp => (Resolver)ResolverScoped;
 
     #region IProviderSetup
 
+    /// <inheritdoc />
     public override IDisposable CreateScope()
         => _scopeProvider.Push(new Resolver(ScopedSp));
 
+    /// <summary> Resolves the service; a closed generic key falls back to its generic type definition (ILogget&lt;User&gt; → ILogget&lt;&gt;), exact registration wins </summary>
+    public override object? GetService(Type key)
+        => key.IsGenericType
+            ? base.GetService(key) ?? base.GetService(key.GetGenericTypeDefinition())
+            : base.GetService(key);
+
+    /// <inheritdoc />
     public void Register(Type key, Func<IServiceProvider, object?> factory)
         => base.Register(key, () => factory(this));
 
+    /// <inheritdoc />
     public void RegisterScoped(Type key, Func<IServiceProvider, object?> factory)
-        => ScopedSp.Register(key, factory);
+        => base.RegisterScoped(key, () => factory(this));
 
+    /// <inheritdoc />
     public IServiceProvider BuildServiceProvider()
         => this;
 
-    public IEnumerable<object?> GetServices(Type baseType) 
+    /// <inheritdoc />
+    public IEnumerable<object?> GetServices(Type baseType)
         => GetServices(baseType.IsAssignableFrom);
 
     #endregion
+
 }
